@@ -1,0 +1,35 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/services
+
+- Utils:
+    - pihole:
+        icon: pi-hole.svg
+        href: http://nano-server.home:88/admin
+        description: DNS sink hole
+        server: nano-server
+        container: pihole
+        widget:
+          type: pihole
+          url: http://pihole
+          key: ${HOMEPAGE_VAR_PIHOLE_API_TOKEN:-pony} # optional
+    - dockge:
+        icon: dockge-light.svg
+        href: http://nano-server.home:5001
+        description: Docker manager
+        server: nano-server
+        container: dockge-dockge-1
+    - uptime-kuma:
+        icon: uptime-kuma.svg
+        href: http://nano-server.home:3001
+        description: Uptime life checker
+        server: nano-server
+        container: uptime-kuma-uptime-kuma-1
+
+- Media:
+    - qbittorrent:
+        icon: qbittorrent.svg
+        href: http://nano-server.home:8080
+        description: Torrent downloader
+        server: nano-server
+        container: qbittorrent

@@ -1,0 +1,19 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/settings
+
+title: Homelabe on nano-server
+
+background:
+  image: https://github.com/My-declarative-PC/wallpapers/blob/master/yosemite.png?raw=true
+  opacity: 60
+cardBlur: md
+theme: dark
+color: slate
+
+showStats: true
+statusStyle: "dot"
+
+providers:
+  openweathermap: openweathermapapikey
+  weatherapi: weatherapiapikey
