@@ -11,6 +11,8 @@ services:
       - 88:80/tcp
     cap_add:
       - NET_ADMIN
+    networks:
+      - nano-server-net
     environment:
       TZ: ${TZ:-Etc/UTC}
       WEBPASSWORD: ${WEBPASSWORD:-pass}
@@ -19,4 +21,6 @@ services:
       - ./pihole:/etc/pihole
       - ./dnsmasq.d:/etc/dnsmasq.d
     restart: unless-stopped
-networks: {}
+networks:
+  nano-server-net:
+    external: true
