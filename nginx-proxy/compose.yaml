@@ -1,0 +1,16 @@
+services:
+  nginx-proxy:
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 81:81
+      - 443:443
+    networks:
+      - nano-server-net
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+networks:
+  nano-server-net:
+    external: true
