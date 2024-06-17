@@ -5,23 +5,23 @@
 - Utils:
     - pihole:
         icon: pi-hole.svg
-        href: http://nano-server.home:88/admin
+        href: http://pihole.home/admin
         description: DNS sink hole
         server: nano-server
         container: pihole
         widget:
           type: pihole
           url: http://pihole
-          key: ${HOMEPAGE_VAR_PIHOLE_API_TOKEN:-pony} # optional
+          key: ${HOMEPAGE_VAR_PIHOLE_API_TOKEN:-pony}
     - dockge:
         icon: dockge-light.svg
-        href: http://nano-server.home:5001
+        href: http://dockge.home
         description: Docker manager
         server: nano-server
         container: dockge-dockge-1
     - uptime-kuma:
         icon: uptime-kuma.svg
-        href: http://nano-server.home:3001
+        href: http://uptime-kuma.home
         description: Uptime life checker
         server: nano-server
         container: uptime-kuma-uptime-kuma-1
@@ -29,7 +29,7 @@
 - Media:
     - qbittorrent:
         icon: qbittorrent.svg
-        href: http://nano-server.home:8080
+        href: http://torrent.home
         description: Torrent downloader
         server: nano-server
         container: qbittorrent
