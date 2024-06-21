@@ -8,6 +8,8 @@ services:
     networks:
       - nano-server-net
     volumes:
+      - /:/mnt/root:ro
+      - /ssd_data:/mnt/ssd:ro
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
 networks:

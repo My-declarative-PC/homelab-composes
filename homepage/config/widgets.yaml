@@ -11,8 +11,10 @@
 - resources:
     label: Storage
     expanded: true
-    disk: /
+    disk:
+      - /mnt/root
+      - /mnt/ssd
 
 - search:
-    provider: duckduckgo
+    provider: brave
     target: _blank
