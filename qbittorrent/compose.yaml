@@ -18,6 +18,12 @@ services:
     networks:
       - nano-server-net
     restart: unless-stopped
+    labels:
+      - homepage.group=Media
+      - homepage.name=Qbit Torrent
+      - homepage.icon=qbittorrent.svg
+      - homepage.href=http://torrent.home
+      - homepage.description=Torrent downloader
 networks:
   nano-server-net:
     external: true

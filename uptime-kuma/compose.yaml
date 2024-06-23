@@ -8,4 +8,10 @@ services:
     volumes:
       - ./uptime-kuma-data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - homepage.group=Utils
+      - homepage.name=Uptime Kuma
+      - homepage.icon=uptime-kuma.svg
+      - homepage.href=http://uptime-kuma.home
+      - homepage.description=Uptime life checker
 networks: {}
