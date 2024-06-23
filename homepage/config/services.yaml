@@ -3,16 +3,6 @@
 # https://gethomepage.dev/latest/configs/services
 
 - Utils:
-    - pihole:
-        icon: pi-hole.svg
-        href: http://pihole.home/admin
-        description: DNS sink hole
-        server: nano-server
-        container: pihole
-        widget:
-          type: pihole
-          url: http://pihole
-          key: ${HOMEPAGE_VAR_PIHOLE_API_TOKEN:-pony}
     - dockge:
         icon: dockge-light.svg
         href: http://dockge.home

@@ -21,6 +21,15 @@ services:
       - ./pihole:/etc/pihole
       - ./dnsmasq.d:/etc/dnsmasq.d
     restart: unless-stopped
+    labels:
+      - homepage.group=Utils
+      - homepage.name=PiHole
+      - homepage.icon=pi-hole.svg
+      - homepage.href=http://pihole.home/admin
+      - homepage.description=DNS sink hole
+      - homepage.widget.type=pihole
+      - homepage.widget.url=http://pihole
+      - homepage.widget.key=${HOMEPAGE_VAR_PIHOLE_API_TOKEN:-pony}
 networks:
   nano-server-net:
     external: true
