@@ -1,17 +1,19 @@
 services:
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
+    image: jellyfin/jellyfin:latest
     container_name: jellyfin
+    user: 1000:1000
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
+      # - PUID=${PUID:-1000}
+      # - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_PublishedServerUrl:-0.0.0.0} #optional
     volumes:
-      - ./config:/config
-      - ./cache:/cache
-      - /ssd_data/docker/composes/samba/storage:/data/tvshows
-      - /ssd_data/docker/composes/samba/storage:/data/movies
+      - ./jellifin_data/config:/config
+      - ./jellifin_data/cache:/cache
+      - /mnt/smb/TV_Shows:/data/tvshows
+      - /mnt/smb/Films:/data/movies
+      - /mnt/smb/Books:/data/books
     ports:
       - 8096:8096
       - 8920:8920 #optional
