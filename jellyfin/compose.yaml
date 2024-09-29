@@ -2,10 +2,8 @@ services:
   jellyfin:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
-    user: 1000:1000
+    user: ${UID:-1000}:${GID:-1000}
     environment:
-      # - PUID=${PUID:-1000}
-      # - PGID=${PGID:-1000}
       - TZ=${TZ:-Etc/UTC}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_PublishedServerUrl:-0.0.0.0} #optional
     volumes:
