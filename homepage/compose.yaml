@@ -4,14 +4,10 @@ services:
     restart: unless-stopped
     container_name: homepage
     ports:
-      - 99:3000
-    networks:
-      - nano-server-net
+      - 9999:3000
     volumes:
       - /:/mnt/root:ro
       - /ssd_data:/mnt/ssd:ro
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
-networks:
-  nano-server-net:
-    external: true
+networks: {}

@@ -3,15 +3,14 @@ services:
     image: vaultwarden/server:latest
     container_name: vaultwarden
     environment:
-      DOMAIN: "https://vaultwarden.big-black-duck.keenetic.link"
+      DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
       SIGNUPS_ALLOWED: "true"
-      TIMEZONE: 'Europe/Moscow'
+      TIMEZONE: ${TIMEZONE:-Etc/UTC}
     ports:
       - 8282:80
     volumes:
       - ./Vaultwarden_Data:/data/
     restart: unless-stopped
-
   # backup:
   #   image: ttionya/vaultwarden-backup:latest
   #   restart: always
@@ -43,3 +42,4 @@ services:
   #     - /mnt/smb/Vaultwarden/Data:/bitwarden/data/
   #     - /mnt/smb/Vaultwarden/BuckUp:/config/
   #   #   - /path/to/env:/.env
+networks: {}
