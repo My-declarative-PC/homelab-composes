@@ -1,0 +1,11 @@
+services:
+  main:
+    image: rongronggg9/rss-to-telegram:dev 
+    container_name: rsstt 
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+    environment:
+      - TOKEN=${TOKEN:-token}
+      - MANAGER=${MANAGER:-manager}
+      - TELEGRAPH_TOKEN=${TELEGRAPH_TOKEN:-telegraph_token}
