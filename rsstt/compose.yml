@@ -6,6 +6,6 @@ services:
     volumes:
       - ./config:/app/config
     environment:
-      - TOKEN=${TOKEN:-token}
-      - MANAGER=${MANAGER:-manager}
-      - TELEGRAPH_TOKEN=${TELEGRAPH_TOKEN:-telegraph_token}
+      TOKEN: ${TOKEN:-token}
+      MANAGER: ${MANAGER:-manager}
+      TELEGRAPH_TOKEN: ${TELEGRAPH_TOKEN:-telegraph_token}
