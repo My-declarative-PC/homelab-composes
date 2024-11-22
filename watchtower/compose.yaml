@@ -2,7 +2,7 @@ services:
   watchtower:
     image: containrrr/watchtower
     environment:
-      - TZ=${TZ:-Etc/UTC}
+      - TZ=${TZ:-Europe/Moscow}
       - WATCHTOWER_CLEANUP=${WATCHTOWER_CLEANUP:-"false"}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

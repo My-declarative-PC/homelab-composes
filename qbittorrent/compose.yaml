@@ -5,7 +5,7 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
-      - TZ=${TZ:-Etc/UTC}
+      - TZ=${TZ:-Europe/Moscow}
       - WEBUI_PORT=${WEBUI_PORT:-8080}
       - TORRENTING_PORT=${TORRENTING_PORT:-6881}
     volumes:

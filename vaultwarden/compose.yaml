@@ -5,7 +5,7 @@ services:
     environment:
       DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
       SIGNUPS_ALLOWED: "true"
-      TIMEZONE: ${TIMEZONE:-Etc/UTC}
+      TIMEZONE: ${TIMEZONE:-Europe/Moscow}
     ports:
       - 8282:80
     volumes:
@@ -23,7 +23,7 @@ services:
       ZIP_TYPE: '7z'
       BACKUP_FILE_SUFFIX: '%d.%m.%y_%H.%M.%S'
       BACKUP_KEEP_DAYS: 2
-      TIMEZONE: ${TIMEZONE:-Etc/UTC}
+      TIMEZONE: ${TIMEZONE:-Europe/Moscow}
     volumes:
       - ./Vaultwarden_Data:/bitwarden/data/
       - /mnt/smb/Vaultwarden/BuckUpConf:/config/

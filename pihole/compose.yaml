@@ -14,7 +14,7 @@ services:
     networks:
       - nano-server-net
     environment:
-      TZ: ${TZ:-Etc/UTC}
+      TZ: ${TZ:-Europe/Moscow}
       WEBPASSWORD: ${WEBPASSWORD:-pass}
     # Volumes store your data between container upgrades
     volumes:
