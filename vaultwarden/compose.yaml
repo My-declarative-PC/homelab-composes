@@ -6,6 +6,8 @@ services:
       DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
       SIGNUPS_ALLOWED: "true"
       TIMEZONE: ${TIMEZONE:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
     ports:
       - 8282:80
     volumes:
@@ -22,7 +24,7 @@ services:
       ZIP_PASSWORD: '${ZIP_PASSWORD:-PASS}'
       ZIP_TYPE: '7z'
       BACKUP_FILE_SUFFIX: '%d.%m.%y_%H.%M.%S'
-      BACKUP_KEEP_DAYS: 2
+      BACKUP_KEEP_DAYS: 14
       TIMEZONE: ${TIMEZONE:-Europe/Moscow}
     volumes:
       - ./Vaultwarden_Data:/bitwarden/data/
