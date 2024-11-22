@@ -1,11 +1,12 @@
 services:
   jellyfin:
-    image: jellyfin/jellyfin:latest
+    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
-    user: ${UID:-1000}:${GID:-1000}
     environment:
       - TZ=${TZ:-Europe/Moscow}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_PublishedServerUrl:-0.0.0.0} #optional
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
     volumes:
       - ./jellifin_data/config:/config
       - ./jellifin_data/cache:/cache
