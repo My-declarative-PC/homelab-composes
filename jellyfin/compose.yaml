@@ -4,7 +4,7 @@ services:
     container_name: jellyfin
     user: ${UID:-1000}:${GID:-1000}
     environment:
-      - TZ=${TZ:-Etc/UTC}
+      - TZ=${TZ:-Europe/Moscow}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_PublishedServerUrl:-0.0.0.0} #optional
     volumes:
       - ./jellifin_data/config:/config
