@@ -10,7 +10,7 @@ services:
       - TORRENTING_PORT=${TORRENTING_PORT:-6881}
     volumes:
       - ./config:/config
-      - /mnt/smb/Downloads:/downloads
+      - /media/jellyfin/Downloads:/downloads
     ports:
       - ${WEBUI_PORT:-8080}:8080
       - ${TORRENTING_PORT:-6881}:6881

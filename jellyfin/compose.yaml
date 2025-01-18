@@ -10,10 +10,10 @@ services:
     volumes:
       - ./jellifin_data/config:/config
       - ./jellifin_data/cache:/cache
-      - /mnt/smb/TV_Shows:/data/tvshows
-      - /mnt/smb/Films:/data/movies
-      - /mnt/smb/Books:/data/books
-      - /mnt/smb/Anime:/data/anime
+      - /media/jellyfin/TV_Shows:/data/tvshows
+      - /media/jellyfin/Films:/data/movies
+      - /media/jellyfin/Books:/data/books
+      - /media/jellyfin/Anime:/data/anime
     ports:
       - 8096:8096
       - 8920:8920 #optional
