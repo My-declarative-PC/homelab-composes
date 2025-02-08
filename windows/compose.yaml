@@ -1,0 +1,19 @@
+services:
+  windows:
+    image: dockurr/windows
+    container_name: windows_${WIN_V:-11}
+    environment:
+      VERSION: "${WIN_V:-11}"
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    volumes:
+      - ./win_data/storage:/storage
+      - ./win_data/data:/data
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 8006:8006
+      - 3389:3389/tcp
+      - 3389:3389/udp
+    stop_grace_period: 2m
