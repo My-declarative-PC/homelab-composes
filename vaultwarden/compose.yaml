@@ -15,6 +15,7 @@ services:
     restart: unless-stopped
   backup:
     image: ttionya/vaultwarden-backup:latest
+    container_name: vaultwarden-backup
     restart: always
     environment:
       RCLONE_REMOTE_NAME: 'MailCloud'
@@ -29,4 +30,3 @@ services:
     volumes:
       - ./Vaultwarden_Data:/bitwarden/data/
       - ./BuckUpConf:/config/
-networks: {}

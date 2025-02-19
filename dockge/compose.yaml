@@ -17,4 +17,3 @@ services:
       - homepage.icon=dockge-light.svg
       - homepage.href=http://dockge.home
       - homepage.description=Docker manager
-networks: {}
