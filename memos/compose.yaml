@@ -2,6 +2,7 @@ services:
   memos:
     image: neosmemo/memos:stable
     container_name: memos
+    restart: unless-stopped
     volumes:
       - ./memos-data/:/var/opt/memos
     ports:
