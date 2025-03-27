@@ -8,6 +8,7 @@ services:
       TIMEZONE: ${TIMEZONE:-Europe/Moscow}
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
+      EXPERIMENTAL_CLIENT_FEATURE_FLAGS: "ssh-key-vault-item,ssh-agent"
     ports:
       - 8282:80
     volumes:
