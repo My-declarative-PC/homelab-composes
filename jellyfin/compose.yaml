@@ -14,6 +14,7 @@ services:
       - /media/jellyfin/Films:/data/movies
       - /media/jellyfin/Books:/data/books
       - /media/jellyfin/Anime:/data/anime
+      - /media/jellyfin/Podcast:/data/podcast
     ports:
       - 8096:8096
       - 8920:8920 #optional

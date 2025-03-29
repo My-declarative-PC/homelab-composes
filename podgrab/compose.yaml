@@ -7,7 +7,7 @@ services:
       - PASSWORD=${PASSWORD:-password}
     volumes:
       - ./podgrab_data/config:/config
-      - ./podgrab_data/assets:/assets
+      - /media/jellyfin/Podcast:/assets
     ports:
       - 8642:8080
     restart: unless-stopped
