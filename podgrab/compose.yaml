@@ -1,0 +1,13 @@
+services:
+  podgrab:
+    image: akhilrex/podgrab
+    container_name: podgrab
+    environment:
+      - CHECK_FREQUENCY=240
+      - PASSWORD=${PASSWORD:-password}
+    volumes:
+      - ./podgrab_data/config:/config
+      - ./podgrab_data/assets:/assets
+    ports:
+      - 8642:8080
+    restart: unless-stopped
