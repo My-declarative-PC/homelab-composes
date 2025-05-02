@@ -1,0 +1,12 @@
+services:
+  sshwifty:
+    image: niruix/sshwifty:latest
+    container_name: sshwifty
+    restart: unless-stopped
+    user: "nobody:nobody"
+    environment:
+      - SSHWIFTY_SHAREDKEY=${WEB_ACCESS_PASSWORD}
+    ports:
+      - "${PORT:-8182}:8182/tcp"
+    stdin_open: true
+    tty: true
