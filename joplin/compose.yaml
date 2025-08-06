@@ -1,0 +1,46 @@
+networks:
+  joplin-app-network:
+
+services:
+  db:
+    image: postgres:16
+    container_name: joplin_db
+    volumes:
+      - ./data_joplin/postgres:/var/lib/postgresql/data
+    networks:
+      - joplin-app-network
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-joplin}
+      - POSTGRES_USER=${POSTGRES_DATABASE:-joplin}
+      - POSTGRES_DB=${POSTGRES_USER:-joplin}
+  app:
+    image: joplin/server:latest
+    container_name: joplin_app
+    depends_on:
+      - db
+    ports:
+      - "22300:22300"
+    networks:
+      - joplin-app-network
+    restart: unless-stopped
+    environment:
+      - APP_PORT=${APP_PORT:-22300}
+      - APP_BASE_URL=${APP_BASE_URL:-http://127.0.0.1:22300/}
+      - DB_CLIENT=${DB_CLIENT:-pg}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-joplin}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-joplin}
+      - POSTGRES_USER=${POSTGRES_USER:-joplin}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_HOST=${POSTGRES_HOST:-db}
+
+# =============================================================================
+# APP_BASE_URL: This is the base public URL where the service will be running.
+#	- If Joplin Server needs to be accessible over the internet, configure APP_BASE_URL as follows: https://example.com/joplin.
+#	- If Joplin Server does not need to be accessible over the internet, set the APP_BASE_URL to your server's hostname.
+#     For Example: http://[hostname]:22300. The base URL can include the port.
+# APP_PORT: The local port on which the Docker container will listen.
+#	- This would typically be mapped to port to 443 (TLS) with a reverse proxy.
+#	- If Joplin Server does not need to be accessible over the internet, the port can be mapped to 22300.
