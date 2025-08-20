@@ -6,6 +6,7 @@ services:
       DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
       SIGNUPS_ALLOWED: "true"
       TIMEZONE: ${TIMEZONE:-Europe/Moscow}
+      TZ: ${TZ:-Europe/Moscow}
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
       EXPERIMENTAL_CLIENT_FEATURE_FLAGS: "ssh-key-vault-item,ssh-agent"
