@@ -1,6 +1,8 @@
 services:
   nginx-proxy:
     image: jc21/nginx-proxy-manager:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     restart: unless-stopped
     ports:
       - 80:80

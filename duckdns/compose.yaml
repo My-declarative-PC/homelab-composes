@@ -1,6 +1,8 @@
 services:
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: duckdns
     network_mode: host
     env_file:

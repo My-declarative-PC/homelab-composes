@@ -1,6 +1,8 @@
 services:
   beszel:
     image: henrygd/beszel:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: beszel
     restart: unless-stopped
     extra_hosts:
@@ -12,6 +14,8 @@ services:
 
   beszel-agent:
     image: "henrygd/beszel-agent"
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: "beszel-agent"
     restart: unless-stopped
     network_mode: host

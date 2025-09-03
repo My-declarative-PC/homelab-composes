@@ -1,6 +1,8 @@
 services:
   dockge:
     image: louislam/dockge:1
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: dockge
     restart: unless-stopped
     ports:

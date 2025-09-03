@@ -1,6 +1,8 @@
 services:
   transmission:
     image: lscr.io/linuxserver/transmission:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: transmission
     environment:
       - PUID=${PUID:-1000}

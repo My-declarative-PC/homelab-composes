@@ -1,6 +1,8 @@
 services:
   memos:
     image: neosmemo/memos:stable
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: memos
     restart: unless-stopped
     volumes:

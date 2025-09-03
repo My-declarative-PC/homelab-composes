@@ -1,6 +1,8 @@
 services:
   sshwifty:
     image: niruix/sshwifty:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: sshwifty
     restart: unless-stopped
     user: "nobody:nobody"

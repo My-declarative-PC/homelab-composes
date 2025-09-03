@@ -2,6 +2,8 @@ version: "3.8"
 services:
   uptime-kuma:
     image: louislam/uptime-kuma:1
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     restart: unless-stopped
     ports:
       - 3001:3001

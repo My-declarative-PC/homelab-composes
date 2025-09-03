@@ -1,6 +1,8 @@
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: qbittorrent
     environment:
       - PUID=${PUID:-1000}

@@ -1,6 +1,8 @@
 services:
   samba:
     image: dockurr/samba
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: samba
     restart: unless-stopped
     ports:

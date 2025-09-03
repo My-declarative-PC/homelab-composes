@@ -1,6 +1,8 @@
 services:
   windows:
     image: dockurr/windows
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: windows_${WIN_V:-11}
     environment:
       VERSION: "${WIN_V:-11}"

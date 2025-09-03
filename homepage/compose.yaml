@@ -1,6 +1,8 @@
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     restart: unless-stopped
     container_name: homepage
     ports:

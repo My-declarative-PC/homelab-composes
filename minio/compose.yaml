@@ -1,6 +1,8 @@
 services:
   minio:
     image: minio/minio:${VERSION:-latest}
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: minio
     command:
       - minio

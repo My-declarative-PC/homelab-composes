@@ -1,6 +1,8 @@
 services:
   vaultwarden:
     image: vaultwarden/server:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: vaultwarden
     environment:
       DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
@@ -17,6 +19,8 @@ services:
     restart: unless-stopped
   backup:
     image: ttionya/vaultwarden-backup:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     container_name: vaultwarden-backup
     restart: always
     environment:
