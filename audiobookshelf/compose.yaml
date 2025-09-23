@@ -1,0 +1,16 @@
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+    container_name: audiobookshelf
+    ports:
+      - 13378:80
+    volumes:
+      - /media/jellyfin/Books/Audiobooks:/audiobooks
+      - /media/jellyfin/Podcast:/podcasts
+      - ./audiobookshelf_data/config:/config
+      - ./audiobookshelf_data/metadata:/metadata
+    environment:
+      - TZ=${TZ:-Europe/Moscow}
+    restart: unless-stopped
