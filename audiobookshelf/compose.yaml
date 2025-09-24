@@ -1,32 +1,51 @@
 services:
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: ${CONTAINER_NAME}_main
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: ${CONTAINER_NAME}_main
+    restart: unless-stopped
     volumes:
       - /media/jellyfin/Books/Audiobooks:/audiobooks
       - /media/jellyfin/Podcast:/podcasts
       - ./${CONTAINER_NAME}_data/config:/config
       - ./${CONTAINER_NAME}_data/metadata:/metadata
     environment:
-      - TZ=${TZ:-Europe/Moscow}
-    restart: unless-stopped
+      TZ: ${TZ:-Europe/Moscow}
     network_mode: "service:gluetun"
     depends_on:
       - gluetun
 
-  gluetun:
-    image: qmcgaw/gluetun
+  apprise:
+    image: caronc/apprise:latest
+    container_name: ${CONTAINER_NAME}_apprise
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    volumes:
+      - ./${CONTAINER_NAME}_data/apprise_api/config:/config
+      - ./${CONTAINER_NAME}_data/apprise_api/plugin:/plugin
+      - ./${CONTAINER_NAME}_data/apprise_api/attach:/attach
+    environment:
+      APPRISE_WORKER_COUNT: 1
+      APPRISE_STATEFUL_MODE: simple
+
+  gluetun:
+    image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+    restart: unless-stopped
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
       - 13378:80
+      - 13379:8000
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun
     environment:
@@ -39,4 +58,4 @@ services:
       WIREGUARD_PUBLIC_KEY: ${WIREGUARD_PUBLIC_KEY}
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
-    restart: unless-stopped
+      HTTP_CONTROL_SERVER_ADDRESS: :8001
