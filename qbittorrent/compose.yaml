@@ -13,7 +13,9 @@ services:
       - /media/jellyfin/Downloads:/downloads
     restart: unless-stopped
     labels:
+      # WatchTower
       - com.centurylinklabs.watchtower.enable=true
+      # HomePage 
       - homepage.group=Media
       - homepage.name=Qbit Torrent
       - homepage.icon=qbittorrent.svg
@@ -38,7 +40,9 @@ services:
       - /media/jellyfin/Downloads:/downloads
     restart: unless-stopped
     labels:
+      # WatchTower
       - com.centurylinklabs.watchtower.enable=true
+      # HomePage 
       - homepage.group=Media
       - homepage.name=Qbit Torrent (vpn)
       - homepage.icon=qbittorrent.svg
