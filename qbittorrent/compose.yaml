@@ -8,6 +8,10 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       WEBUI_PORT: ${WEBUI_PORT:-8080}
       TORRENTING_PORT: ${TORRENTING_PORT:-6881}
+    ports:
+      - ${WEBUI_PORT:-8080}:${WEBUI_PORT:-8080}
+      - ${TORRENTING_PORT:-6881}:${TORRENTING_PORT:-6881}
+      - ${TORRENTING_PORT:-6881}:${TORRENTING_PORT:-6881}/udp
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config
       - /media/jellyfin/Downloads:/downloads
@@ -31,10 +35,6 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       WEBUI_PORT: ${VPN_WEBUI_PORT:-8081}
       TORRENTING_PORT: ${VPN_TORRENTING_PORT:-6882}
-    ports:
-      - ${VPN_WEBUI_PORT:-8081}:8081
-      - ${VPN_TORRENTING_PORT:-6882}:6882
-      - ${VPN_TORRENTING_PORT:-6882}:6882/udp
     volumes:
       - ./vpn_${CONTAINER_NAME}_data/config:/config
       - /media/jellyfin/Downloads:/downloads
@@ -63,9 +63,9 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      - ${WEBUI_PORT:-8080}:8080
-      - ${TORRENTING_PORT:-6881}:6881
-      - ${TORRENTING_PORT:-6881}:6881/udp
+      - ${VPN_WEBUI_PORT:-8081}:${VPN_WEBUI_PORT:-8081}
+      - ${VPN_TORRENTING_PORT:-6882}:${VPN_TORRENTING_PORT:-6882}
+      - ${VPN_TORRENTING_PORT:-6882}:${VPN_TORRENTING_PORT:-6882}/udp
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun
     environment:
