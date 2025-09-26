@@ -23,7 +23,7 @@ services:
     depends_on:
       - gluetun
 
-  gluetun:
+  gluetun_qtor:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
     labels:

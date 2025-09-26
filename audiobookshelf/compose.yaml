@@ -16,7 +16,7 @@ services:
     depends_on:
       - gluetun
 
-  apprise:
+  apprise_abs:
     image: caronc/apprise:latest
     container_name: ${CONTAINER_NAME}_apprise
     labels:
@@ -33,7 +33,7 @@ services:
       APPRISE_WORKER_COUNT: 1
       APPRISE_STATEFUL_MODE: simple
 
-  gluetun:
+  gluetun_abs:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
     labels:
