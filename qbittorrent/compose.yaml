@@ -48,9 +48,9 @@ services:
       - homepage.icon=qbittorrent.svg
       - homepage.href=http://torrent.home
       - homepage.description=Torrent downloader over VPN
-    network_mode: "service:gluetun"
+    network_mode: "service:gluetun_qtor"
     depends_on:
-      - gluetun
+      - gluetun_qtor
 
   gluetun_qtor:
     image: qmcgaw/gluetun
