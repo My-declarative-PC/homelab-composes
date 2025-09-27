@@ -12,9 +12,9 @@ services:
       - ./${CONTAINER_NAME}_data/metadata:/metadata
     environment:
       TZ: ${TZ:-Europe/Moscow}
-    network_mode: "service:gluetun"
+    network_mode: "service:gluetun_abs"
     depends_on:
-      - gluetun
+      - gluetun_abs
 
   apprise_abs:
     image: caronc/apprise:latest
