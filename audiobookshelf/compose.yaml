@@ -14,7 +14,8 @@ services:
       TZ: ${TZ:-Europe/Moscow}
     network_mode: "service:gluetun_abs"
     depends_on:
-      - gluetun_abs
+      gluetun_abs:
+        condition: service_healthy
 
   apprise_abs:
     image: caronc/apprise:latest
@@ -22,9 +23,10 @@ services:
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
     restart: unless-stopped
-    network_mode: "service:gluetun"
+    network_mode: "service:gluetun_abs"
     depends_on:
-      - gluetun
+      gluetun_abs:
+        condition: service_healthy
     volumes:
       - ./${CONTAINER_NAME}_data/apprise_api/config:/config
       - ./${CONTAINER_NAME}_data/apprise_api/plugin:/plugin

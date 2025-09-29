@@ -50,7 +50,8 @@ services:
       - homepage.description=Torrent downloader over VPN
     network_mode: "service:gluetun_qtor"
     depends_on:
-      - gluetun_qtor
+      gluetun_qtor:
+        condition: service_healthy
 
   gluetun_qtor:
     image: qmcgaw/gluetun

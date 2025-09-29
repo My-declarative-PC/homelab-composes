@@ -20,7 +20,8 @@ services:
     restart: unless-stopped
     network_mode: "service:gluetun_jelly"
     depends_on:
-      - gluetun_jelly
+      gluetun_jelly:
+        condition: service_healthy
 
   gluetun_jelly:
     image: qmcgaw/gluetun
