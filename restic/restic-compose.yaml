@@ -1,0 +1,44 @@
+services:
+  backup:
+    image: mazzolino/restic
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    container_name: ${CONTAINER_NAME}_restic__backup
+    restart: unless-stopped
+    environment:
+      RUN_ON_STARTUP: "false"
+      BACKUP_CRON: "0 30 3 * * *"
+      RESTIC_BACKUP_SOURCES: /beckaups_data
+      TZ: ${TZ:-Europe/Moscow}
+      # docker control
+      PRE_COMMANDS: |-
+        docker stop ${CONTAINER_NAME}_main
+      POST_COMMANDS_SUCCESS: |-
+        docker start ${CONTAINER_NAME}_main
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
+
+  prune:
+    image: mazzolino/restic
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    container_name: ${CONTAINER_NAME}_restic__prune
+    restart: unless-stopped
+    environment:
+      SKIP_INIT: "true"
+      RUN_ON_STARTUP: "false"
+      PRUNE_CRON: "0 0 4 * * *"
+      TZ: ${TZ:-Europe/Moscow}
+
+  check:
+    image: mazzolino/restic
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    container_name: ${CONTAINER_NAME}_restic__check
+    restart: unless-stopped
+    environment:
+      SKIP_INIT: "true"
+      RUN_ON_STARTUP: "false"
+      CHECK_CRON: "0 15 5 * * *"
+      TZ: ${TZ:-Europe/Moscow}

@@ -1,0 +1,24 @@
+services:
+  restic_templ:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: ${CONTAINER_NAME}_main
+    volumes:
+      - ./${CONTAINER_NAME}_data:/some_test_data
+    restart: unless-stopped
+
+  backup_restic_templ:
+    extends:
+      file: ./restic-compose.yaml
+      service: backup
+
+  prune_restic_templ:
+    extends:
+      file: ./restic-compose.yaml
+      service: prune
+
+  check_restic_templ:
+    extends:
+      file: ./restic-compose.yaml
+      service: check
