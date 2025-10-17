@@ -16,6 +16,7 @@ services:
     depends_on:
       gluetun_abs:
         condition: service_healthy
+        restart: true
 
   apprise_abs:
     image: caronc/apprise:latest
@@ -27,6 +28,7 @@ services:
     depends_on:
       gluetun_abs:
         condition: service_healthy
+        restart: true
     volumes:
       - ./${CONTAINER_NAME}_data/apprise_api/config:/config
       - ./${CONTAINER_NAME}_data/apprise_api/plugin:/plugin
