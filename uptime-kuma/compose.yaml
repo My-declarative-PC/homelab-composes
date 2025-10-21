@@ -1,19 +1,23 @@
-version: "3.8"
 services:
   uptime-kuma:
-    image: louislam/uptime-kuma:1
-    labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+    image: louislam/uptime-kuma:2
+    container_name: ${CONTAINER_NAME}_main
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
     restart: unless-stopped
     ports:
       - 3001:3001
     volumes:
-      - ./uptime-kuma-data:/app/data
+      - ./${CONTAINER_NAME}_data/uptime_kuma:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
+      # WatchTower
+      - 'com.centurylinklabs.watchtower.enable=true'
+      # HomePage
       - homepage.group=Utils
       - homepage.name=Uptime Kuma
       - homepage.icon=uptime-kuma.svg
       - homepage.href=http://uptime-kuma.home
       - homepage.description=Uptime life checker
-networks: {}
