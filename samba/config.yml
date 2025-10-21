@@ -6,8 +6,8 @@ auth:
     password: ${MAIN_PASS}
   - user: ${SECUR_USER}
     group: ${MAIN_USER}
-    uid: ${MAIN_USER_UID}
-    gid: ${MAIN_USER_GID}
+    uid: ${SECUR_USER_GID}
+    gid: ${SECUR_USER_UID}
     password: ${SECUR_PASS}
 
 share:
