@@ -1,12 +1,14 @@
 services:
   watchtower:
     image: containrrr/watchtower
-    container_name: watchtower
+    container_name: ${CONTAINER_NAME}_main
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
     environment:
-      - TZ=${TZ:-Europe/Moscow}
-      - WATCHTOWER_CLEANUP=${WATCHTOWER_CLEANUP:-"false"}
-      - WATCHTOWER_LABEL_ENABLE=${WATCHTOWER_LABEL_ENABLE:-"true"}
-      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_POLL_INTERVAL:-"604800"}
+      TZ: ${TZ:-Europe/Moscow}
+      WATCHTOWER_CLEANUP: ${WATCHTOWER_CLEANUP:-"false"}
+      WATCHTOWER_LABEL_ENABLE: ${WATCHTOWER_LABEL_ENABLE:-"true"}
+      WATCHTOWER_POLL_INTERVAL: ${WATCHTOWER_POLL_INTERVAL:-"604800"}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
