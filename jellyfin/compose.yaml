@@ -10,8 +10,8 @@ services:
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
     volumes:
-      - ./jellifin_data/config:/config
-      - ./jellifin_data/cache:/cache
+      - ./${CONTAINER_NAME}_data/config:/config
+      - ./${CONTAINER_NAME}_data/cache:/cache
       - /media/jellyfin/TV_Shows:/data/tvshows
       - /media/jellyfin/Films:/data/movies
       - /media/jellyfin/Books:/data/books
@@ -52,3 +52,23 @@ services:
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8001
+
+  # BeckUps
+  backup_restic__jellyfin:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    environment:
+      BACKUP_CRON: "1 1 1 * * *"
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
+
+  prune_restic__jellyfin:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+
+  check_restic__jellyfin:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check

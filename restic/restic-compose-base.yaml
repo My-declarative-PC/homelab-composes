@@ -37,6 +37,8 @@ services:
       RUN_ON_STARTUP: "false"
       PRUNE_CRON: "0 0 4 * * *"
       TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
 
   check:
     image: mazzolino/restic
@@ -49,3 +51,5 @@ services:
       RUN_ON_STARTUP: "false"
       CHECK_CRON: "0 15 5 * * *"
       TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
