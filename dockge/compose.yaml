@@ -1,19 +1,23 @@
 services:
   dockge:
     image: louislam/dockge:1
-    labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: dockge
+    container_name: ${CONTAINER_NAME}_main
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      DOCKGE_STACKS_DIR: ${DOCKGE_STACKS_DIR:-/opt/stacks}
     restart: unless-stopped
     ports:
       - 5001:5001
-    environment:
-      DOCKGE_STACKS_DIR: ${DOCKGE_STACKS_DIR:-/opt/stacks}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./data:/app/data
+      - ./${CONTAINER_NAME}_data/dockge:/app/data
       - ${DOCKGE_STACKS_DIR:-/opt/stacks}:${DOCKGE_STACKS_DIR:-/opt/stacks}
     labels:
+      # WatchTower
+      - com.centurylinklabs.watchtower.enable=true
+      # HomePage
       - homepage.group=Utils
       - homepage.name=Dockge
       - homepage.icon=dockge-light.svg

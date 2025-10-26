@@ -1,28 +1,35 @@
 services:
   beszel:
     image: henrygd/beszel:latest
+    container_name: ${CONTAINER_NAME}_main
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: beszel
     restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
     extra_hosts:
       - host.docker.internal:host-gateway
     ports:
       - 8090:8090
     volumes:
-      - ./beszel_data:/beszel_data
+      - ./${CONTAINER_NAME}_data/config:/beszel_data
 
   beszel-agent:
-    image: "henrygd/beszel-agent"
+    image: henrygd/beszel-agent
+    container_name: ${CONTAINER_NAME}_lockal_agent
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: "beszel-agent"
     restart: unless-stopped
     network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
       - /home/.beszel:/extra-filesystems/home:ro
+      - /midia/.beszel:/extra-filesystems/media:ro
     environment:
-      PORT: ${PORT}
+      TZ: ${TZ:-Europe/Moscow}
+      LISTEN: ${LISTEN}
       KEY: ${KEY}
+      TOKEN: ${TOKEN}
+      HUB_URL: ${HUB_URL}

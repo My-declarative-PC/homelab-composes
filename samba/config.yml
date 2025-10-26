@@ -1,0 +1,39 @@
+auth:
+  - user: ${MAIN_USER}
+    group: ${MAIN_USER}
+    uid: ${MAIN_USER_UID}
+    gid: ${MAIN_USER_GID}
+    password: ${MAIN_PASS}
+  - user: ${SECUR_USER}
+    group: ${MAIN_USER}
+    uid: ${SECUR_USER_GID}
+    gid: ${SECUR_USER_UID}
+    password: ${SECUR_PASS}
+
+share:
+  - name: public
+    comment: Public
+    path: /samba/public
+    browsable: yes
+    readonly: no
+    guestok: yes
+    veto: no
+    recycle: yes
+  - name: ${MAIN_USER}
+    path: /samba/${MAIN_USER}
+    browsable: yes
+    readonly: no
+    guestok: no
+    veto: no
+    hidefiles: /_*/
+    validusers: ${MAIN_USER}
+    writelist: ${MAIN_USER}
+  - name: ${SECUR_USER}
+    path: /samba/${SECUR_USER}
+    browsable: yes
+    readonly: no
+    guestok: no
+    veto: no
+    hidefiles: /_*/
+    validusers: ${SECUR_USER}
+    writelist: ${SECUR_USER}

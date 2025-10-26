@@ -52,6 +52,7 @@ services:
     depends_on:
       gluetun_qtor:
         condition: service_healthy
+        restart: true
 
   gluetun_qtor:
     image: qmcgaw/gluetun

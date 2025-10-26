@@ -1,15 +1,29 @@
 services:
   samba:
-    image: dockurr/samba
+    image: crazymax/samba
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: samba
+    container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped
     ports:
       - 445:445
+      - 3702:3702
+      - 5355:5355
     environment:
-      USER: ${USER:-USER}
-      PASS: ${PASS:-PASS}
+      TZ: ${TZ:-Europe/Moscow}
+      # me
+      MAIN_PASS: ${MAIN_PASS}
+      MAIN_USER: ${MAIN_USER}
+      MAIN_USER_GID: ${MAIN_USER_GID}
+      MAIN_USER_UID: ${MAIN_USER_UID}
+      # security camera
+      SECUR_PASS: ${SECUR_PASS}
+      SECUR_USER: ${SECUR_USER}
+      SECUR_USER_GID: ${SECUR_USER_GID}
+      SECUR_USER_UID: ${SECUR_USER_UID}
     volumes:
-      - ./storage:/storage
-networks: {}
+      - ./config.yml:/data/config.yml
+      - ./${CONTAINER_NAME}_data:/data
+      - "/media/smb/public:/samba/public"
+      - "/media/smb/share/${MAIN_USER}:/samba/${MAIN_USER}"
+      - "/media/smb/share/${SECUR_USER}:/samba/${SECUR_USER}"
