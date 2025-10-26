@@ -8,16 +8,23 @@ services:
     environment:
       RUN_ON_STARTUP: "false"
       BACKUP_CRON: "0 30 3 * * *"
-      RESTIC_BACKUP_SOURCES: /beckaups_data
       TZ: ${TZ:-Europe/Moscow}
       # docker control
       PRE_COMMANDS: |-
         docker stop ${CONTAINER_NAME}_main
       POST_COMMANDS_SUCCESS: |-
         docker start ${CONTAINER_NAME}_main
+      # restic settings
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
+      RESTIC_BACKUP_ARGS: >-
+        --tag docker-${CONTAINER_NAME}
+        --verbose
+      # beckaup forlder in conteiner
+      RESTIC_BACKUP_SOURCES: /beckaups_data
     volumes:
+      - ./${CONTAINER_NAME}_data/surces:/beckaups_data:ro
+      - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
 
   prune:
     image: mazzolino/restic

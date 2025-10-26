@@ -5,5 +5,5 @@ while true; do
 
     echo "$(date +'%Y-%m-%d %H:%M:%S')" >>"$filename"
 
-    sleep 900 # 15 min
+    sleep 123 # 2 min 3 sec
 done

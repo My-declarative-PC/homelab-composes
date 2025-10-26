@@ -1,24 +1,27 @@
 services:
-  restic_templ:
+  logger_templ:
     build:
       context: ./
       dockerfile: Dockerfile
     container_name: ${CONTAINER_NAME}_main
     volumes:
-      - ./${CONTAINER_NAME}_data:/some_test_data
+      - ./${CONTAINER_NAME}_data/surces:/some_test_data
     restart: unless-stopped
 
   backup_restic_templ:
     extends:
-      file: ./restic-compose.yaml
+      file: ./restic-compose-base.yaml
       service: backup
+    environment:
+      RUN_ON_STARTUP: "true"
+      BACKUP_CRON: "0 */3 * * * *"
 
   prune_restic_templ:
     extends:
-      file: ./restic-compose.yaml
+      file: ./restic-compose-base.yaml
       service: prune
 
   check_restic_templ:
     extends:
-      file: ./restic-compose.yaml
+      file: ./restic-compose-base.yaml
       service: check
