@@ -1,0 +1,17 @@
+services:
+  retroarch:
+    image: lscr.io/linuxserver/retroarch:latest
+    container_name: ${CONTAINER_NAME}_main
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/config
+    ports:
+      - 3030:3000
+      - 3031:3001
+    shm_size: "1gb"
