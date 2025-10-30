@@ -17,7 +17,9 @@ services:
       # restic settings
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
       RESTIC_BACKUP_ARGS: >-
+        --compression auto
         --tag docker-${CONTAINER_NAME}
+        --skip-if-unchanged
         --verbose
       # beckaup forlder in conteiner
       RESTIC_BACKUP_SOURCES: /beckaups_data
@@ -37,6 +39,10 @@ services:
       RUN_ON_STARTUP: "false"
       PRUNE_CRON: "0 0 4 * * *"
       TZ: ${TZ:-Europe/Moscow}
+      # restic settings
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
+      RESTIC_BACKUP_ARGS: >-
+        --verbose
     volumes:
       - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
 
@@ -51,5 +57,9 @@ services:
       RUN_ON_STARTUP: "false"
       CHECK_CRON: "0 15 5 * * *"
       TZ: ${TZ:-Europe/Moscow}
+      # restic settings
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
+      RESTIC_BACKUP_ARGS: >-
+        --verbose
     volumes:
       - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
