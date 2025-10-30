@@ -12,6 +12,7 @@ services:
     ports:
       - 8090:8090
     volumes:
+      - ./beszel_socket:/beszel_socket
       - ./${CONTAINER_NAME}_data/config:/beszel_data
 
   beszel-agent:
@@ -22,11 +23,12 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
+      - ./beszel_socket:/beszel_socket
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
-      - /home/.beszel:/extra-filesystems/home:ro
-      - /midia/.beszel:/extra-filesystems/media:ro
+      - /home/.beszel:/extra-filesystems/sdb1__home:ro
+      - /midia/.beszel:/extra-filesystems/sdc1__media:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
