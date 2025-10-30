@@ -2,7 +2,7 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     environment:
       TZ: ${TZ:-Europe/Moscow}
@@ -18,7 +18,12 @@ services:
       - /media/jellyfin/Anime:/data/anime
       - /media/jellyfin/Podcast:/data/podcast
     restart: unless-stopped
-    network_mode: "service:gluetun_jelly"
+    network_mode: service:gluetun_jelly
+    healthcheck:
+      test: curl --fail http://127.0.0.1:8096/health
+      interval: 1m
+      timeout: 30s
+      retries: 3
     depends_on:
       gluetun_jelly:
         condition: service_healthy
@@ -28,7 +33,7 @@ services:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -54,6 +59,7 @@ services:
       HTTP_CONTROL_SERVER_ADDRESS: :8001
 
   # BeckUps
+  ## main
   backup_restic__jellyfin:
     extends:
       file: ../restic/restic-compose-base.yaml
@@ -63,11 +69,13 @@ services:
     volumes:
       - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
 
+  ## prune
   prune_restic__jellyfin:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: prune
 
+  ## chekc
   check_restic__jellyfin:
     extends:
       file: ../restic/restic-compose-base.yaml
