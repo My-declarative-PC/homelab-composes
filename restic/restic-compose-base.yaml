@@ -17,7 +17,9 @@ services:
       # restic settings
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
       RESTIC_BACKUP_ARGS: >-
+        --compression auto
         --tag docker-${CONTAINER_NAME}
+        --skip-if-unchanged
         --verbose
       # beckaup forlder in conteiner
       RESTIC_BACKUP_SOURCES: /beckaups_data
