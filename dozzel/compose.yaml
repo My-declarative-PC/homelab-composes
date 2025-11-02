@@ -10,5 +10,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./${CONTAINER_NAME}_data:/data
+    restart: unless-stopped
     ports:
       - 8765:8080
