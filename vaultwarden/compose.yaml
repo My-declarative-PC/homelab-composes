@@ -3,7 +3,7 @@ services:
     image: vaultwarden/server:latest
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: vaultwarden
+    container_name: ${CONTAINER_NAME}_main
     environment:
       DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
       SIGNUPS_ALLOWED: "true"
@@ -15,8 +15,9 @@ services:
     ports:
       - 8282:80
     volumes:
-      - ./Vaultwarden_Data:/data/
+      - ./${CONTAINER_NAME}_data/data/:/data/
     restart: unless-stopped
+
   backup:
     image: ttionya/vaultwarden-backup:latest
     labels:
@@ -34,5 +35,31 @@ services:
       BACKUP_KEEP_DAYS: 14
       TIMEZONE: ${TIMEZONE:-Europe/Moscow}
     volumes:
-      - ./Vaultwarden_Data:/bitwarden/data/
-      - ./BuckUpConf:/config/
+      - ./${CONTAINER_NAME}_data/data/:/bitwarden/data/
+      - ./${CONTAINER_NAME}_data/config/:/config/
+
+  # BeckUps
+  ## main
+  backup_restic__vaultwarden:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    environment:
+      BACKUP_CRON: "* * */6 * * *"
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
+      - ./${CONTAINER_NAME}_data/beckup:/restore_data
+
+  ## prune
+  prune_restic__vaultwarden:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+
+  ## chekc
+  check_restic__vaultwarden:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check
+    environment:
+      CHECK_CRON: "* * */12 * * *"
