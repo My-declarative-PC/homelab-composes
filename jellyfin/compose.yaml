@@ -64,8 +64,6 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: backup
-    environment:
-      BACKUP_CRON: 1 1 1 * * *
     volumes:
       - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
 
