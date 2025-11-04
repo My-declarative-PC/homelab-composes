@@ -47,8 +47,7 @@ services:
     environment:
       BACKUP_CRON: "0 0 */6 * * *"
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
-      - ./${CONTAINER_NAME}_data/beckup:/restore_data
+      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
 
   ## prune
   prune_restic__vaultwarden:

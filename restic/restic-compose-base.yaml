@@ -24,7 +24,8 @@ services:
       # beckaup forlder in conteiner
       RESTIC_BACKUP_SOURCES: /beckaups_data
     volumes:
-      - ./${CONTAINER_NAME}_data/surces:/beckaups_data:ro
+      - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
+      - ./${CONTAINER_NAME}_data/beckup:/restore_data
       - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
