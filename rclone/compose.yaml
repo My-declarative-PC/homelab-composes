@@ -1,6 +1,6 @@
 services:
   rclone:
-    image: olivierdalang/rclone-cron:latest
+    image: ghcr.io/my-declarative-pc/docker-rclone-cron
     labels:
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
