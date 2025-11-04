@@ -45,7 +45,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     environment:
-      BACKUP_CRON: "* * */6 * * *"
+      BACKUP_CRON: "0 0 */6 * * *"
     volumes:
       - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
       - ./${CONTAINER_NAME}_data/beckup:/restore_data
@@ -62,4 +62,4 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: check
     environment:
-      CHECK_CRON: "* * */12 * * *"
+      CHECK_CRON: "0 0 */12 * * *"
