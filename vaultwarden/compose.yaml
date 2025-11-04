@@ -18,26 +18,6 @@ services:
       - ./${CONTAINER_NAME}_data/data/:/data/
     restart: unless-stopped
 
-  backup:
-    image: ttionya/vaultwarden-backup:latest
-    labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
-    container_name: vaultwarden-backup
-    restart: always
-    environment:
-      RCLONE_REMOTE_NAME: 'MailCloud'
-      RCLONE_REMOTE_DIR: '/Backup/VaulWarden/'
-      CRON: '*/30 * * * *'
-      ZIP_ENABLE: 'TRUE'
-      ZIP_PASSWORD: '${ZIP_PASSWORD:-PASS}'
-      ZIP_TYPE: '7z'
-      BACKUP_FILE_SUFFIX: '%d.%m.%y_%H.%M.%S'
-      BACKUP_KEEP_DAYS: 14
-      TIMEZONE: ${TIMEZONE:-Europe/Moscow}
-    volumes:
-      - ./${CONTAINER_NAME}_data/data/:/bitwarden/data/
-      - ./${CONTAINER_NAME}_data/config/:/config/
-
   # BeckUps
   ## main
   backup_restic__vaultwarden:
