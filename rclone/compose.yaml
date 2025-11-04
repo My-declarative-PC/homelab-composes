@@ -1,0 +1,21 @@
+services:
+  rclone:
+    image: olivierdalang/rclone-cron:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_main
+    environment:
+      CRON_SCHEDULE: '*/5 * * * *'
+      COMMAND: rclone sync -v /beckaups_data MAILCLUD:restic_beckupas
+      # config
+      RCLONE_CONFIG_MAILCLUD_TYPE: mailru
+      RCLONE_CONFIG_MAILCLUD_USER: ${MAILCLUD_USER}
+      RCLONE_CONFIG_MAILCLUD_PASS: ${MAILCLUD_PASS}
+      RCLONE_CONFIG_MAILCLUD_TOKEN: ${MAILCLUD_TOKEN}
+      # other
+      TZ: ${TZ:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    volumes:
+      - /media/restic:/beckaups_data
+

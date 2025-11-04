@@ -1,0 +1,3 @@
+[submodule "docker-rclone-cron"]
+	path = rclone/src
+	url = https://github.com/My-declarative-PC/docker-rclone-cron.git
