@@ -14,29 +14,29 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       # WatchTower
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
       # HomePage
       - homepage.group=Utils
       - homepage.name=Uptime Kuma
       - homepage.icon=uptime-kuma.svg
       - homepage.href=http://uptime-kuma.home
       - homepage.description=Uptime life checker
-
   # BeckUps
   ## main
   backup_restic__uptime-kuma:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: backup
-
+    volumes:
+      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
   ## prune
   prune_restic__uptime-kuma:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: prune
-
   ## chekc
   check_restic__uptime-kuma:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
+networks: {}

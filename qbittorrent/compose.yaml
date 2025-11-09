@@ -25,7 +25,6 @@ services:
       - homepage.icon=qbittorrent.svg
       - homepage.href=http://torrent.home
       - homepage.description=Torrent downloader
-
   qbittorrent_vpn:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: vpn_${CONTAINER_NAME}_main
@@ -48,17 +47,16 @@ services:
       - homepage.icon=qbittorrent.svg
       - homepage.href=http://torrent.home
       - homepage.description=Torrent downloader over VPN
-    network_mode: "service:gluetun_qtor"
+    network_mode: service:gluetun_qtor
     depends_on:
       gluetun_qtor:
         condition: service_healthy
         restart: true
-
   gluetun_qtor:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -81,3 +79,4 @@ services:
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8002
+networks: {}

@@ -2,7 +2,7 @@ services:
   vaultwarden:
     image: vaultwarden/server:latest
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     environment:
       DOMAIN: https://vaultwarden.big-black-duck.keenetic.link
@@ -11,13 +11,12 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
-      EXPERIMENTAL_CLIENT_FEATURE_FLAGS: "ssh-key-vault-item,ssh-agent"
+      EXPERIMENTAL_CLIENT_FEATURE_FLAGS: ssh-key-vault-item,ssh-agent
     ports:
       - 8282:80
     volumes:
       - ./${CONTAINER_NAME}_data/data/:/data/
     restart: unless-stopped
-
   # BeckUps
   ## main
   backup_restic__vaultwarden:
@@ -25,20 +24,19 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     environment:
-      BACKUP_CRON: "0 0 */6 * * *"
+      BACKUP_CRON: 0 0 */6 * * *
     volumes:
       - ./${CONTAINER_NAME}_data:/beckaups_data:ro
-
   ## prune
   prune_restic__vaultwarden:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: prune
-
   ## chekc
   check_restic__vaultwarden:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
     environment:
-      CHECK_CRON: "0 0 */12 * * *"
+      CHECK_CRON: 0 1 */12 * * *
+networks: {}

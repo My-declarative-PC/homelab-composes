@@ -13,3 +13,4 @@ services:
     restart: unless-stopped
     ports:
       - 8765:8080
+networks: {}

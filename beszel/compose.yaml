@@ -3,7 +3,7 @@ services:
     image: henrygd/beszel:latest
     container_name: ${CONTAINER_NAME}_main
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Europe/Moscow}
@@ -14,12 +14,11 @@ services:
     volumes:
       - ./beszel_socket:/beszel_socket
       - ./${CONTAINER_NAME}_data/config:/beszel_data
-
   beszel-agent:
     image: henrygd/beszel-agent-intel
     container_name: ${CONTAINER_NAME}_lockal_agent
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     network_mode: host
     volumes:
@@ -42,3 +41,4 @@ services:
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
+networks: {}

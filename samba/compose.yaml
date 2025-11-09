@@ -2,7 +2,7 @@ services:
   samba:
     image: crazymax/samba
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped
     ports:
@@ -24,6 +24,7 @@ services:
     volumes:
       - ./config.yml:/data/config.yml
       - ./${CONTAINER_NAME}_data:/data
-      - "/media/smb/public:/samba/public"
-      - "/media/smb/share/${MAIN_USER}:/samba/${MAIN_USER}"
-      - "/media/smb/share/${SECUR_USER}:/samba/${SECUR_USER}"
+      - /media/smb/public:/samba/public
+      - /media/smb/share/${MAIN_USER}:/samba/${MAIN_USER}
+      - /media/smb/share/${SECUR_USER}:/samba/${SECUR_USER}
+networks: {}

@@ -3,7 +3,7 @@ services:
     image: containrrr/watchtower
     container_name: ${CONTAINER_NAME}_main
     labels:
-      - 'com.centurylinklabs.watchtower.enable=true'
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       TZ: ${TZ:-Europe/Moscow}
       WATCHTOWER_CLEANUP: ${WATCHTOWER_CLEANUP:-"true"}
@@ -11,3 +11,4 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
+networks: {}
