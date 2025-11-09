@@ -6,7 +6,7 @@ services:
     container_name: ${CONTAINER_NAME}_main
     environment:
       CRON_SCHEDULE: 5 */6 * * *
-      COMMAND: rclone sync -v /beckaups_data MAILCLUD:restic_beckupas
+      COMMAND: rclone sync -v /beckaups_data MAILCLUD:Backup/restic_beckupas
       # config
       RCLONE_CONFIG_MAILCLUD_TYPE: mailru
       RCLONE_CONFIG_MAILCLUD_USER: ${MAILCLUD_USER}
