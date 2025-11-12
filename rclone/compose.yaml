@@ -16,6 +16,7 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
+    restart: unless-stopped
     volumes:
       - /media/restic:/beckaups_data
 networks: {}
