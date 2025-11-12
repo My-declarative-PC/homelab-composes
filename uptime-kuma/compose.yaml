@@ -28,7 +28,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
+      - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
   ## prune
   prune_restic__uptime-kuma:
     extends:
