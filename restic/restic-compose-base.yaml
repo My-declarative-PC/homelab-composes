@@ -15,18 +15,25 @@ services:
       POST_COMMANDS_SUCCESS: |-
         docker start ${CONTAINER_NAME}_main
       # restic settings
+      RESTIC_COMPRESSION: auto
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
+      RESTIC_REPOSITORY: /mnt/restic
       RESTIC_BACKUP_ARGS: >-
-        --compression auto
         --tag docker-${CONTAINER_NAME}
         --skip-if-unchanged
         --verbose
+      RESTIC_FORGET_ARGS: >-
+        --keep-last 10
+        --keep-daily 7
+        --keep-weekly 5
+        --keep-monthly 12
       # beckaup forlder in conteiner
-      RESTIC_BACKUP_SOURCES: /beckaups_data
+      RESTIC_BACKUP_SOURCES: /backup_data
+
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/beckaups_data:ro
-      - ./${CONTAINER_NAME}_data/beckup:/restore_data
-      - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+      - ./${CONTAINER_NAME}_data/backup_restore:/restore_data
+      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   prune:
@@ -42,10 +49,11 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       # restic settings
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
-      RESTIC_BACKUP_ARGS: >-
+      RESTIC_REPOSITORY: /mnt/restic
+      RESTIC_PRUNE_ARGS: >
         --verbose
     volumes:
-      - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
+      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
 
   check:
     image: mazzolino/restic
@@ -60,7 +68,9 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       # restic settings
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
-      RESTIC_BACKUP_ARGS: >-
+      RESTIC_REPOSITORY: /mnt/restic
+      RESTIC_CHECK_ARGS: >-
+        --read-data-subset=10%
         --verbose
     volumes:
-      - /media/restic/${CONTAINER_NAME}_beckaups:/mnt/restic
+      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
