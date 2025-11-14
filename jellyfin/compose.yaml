@@ -28,7 +28,6 @@ services:
       gluetun_jelly:
         condition: service_healthy
         restart: true
-
   gluetun_jelly:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
@@ -57,22 +56,20 @@ services:
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8001
-
   # BeckUps
   ## main
   backup_restic__jellyfin:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: backup
-
   ## prune
   prune_restic__jellyfin:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: prune
-
   ## chekc
   check_restic__jellyfin:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
+networks: {}
