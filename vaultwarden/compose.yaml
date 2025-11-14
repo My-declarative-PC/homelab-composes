@@ -15,7 +15,7 @@ services:
     ports:
       - 8282:80
     volumes:
-      - ./${CONTAINER_NAME}_data/data/:/data/
+      - ./${CONTAINER_NAME}_data/config/:/data/
     restart: unless-stopped
   # BeckUps
   ## main
@@ -25,8 +25,6 @@ services:
       service: backup
     environment:
       BACKUP_CRON: 0 0 */6 * * *
-    volumes:
-      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
   ## prune
   prune_restic__vaultwarden:
     extends:
