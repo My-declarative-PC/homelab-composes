@@ -6,7 +6,7 @@ services:
     container_name: ${CONTAINER_NAME}_to_mail-cloud
     environment:
       CRON_SCHEDULE: 5 */6 * * *
-      COMMAND: rclone sync -v /beckaups_data MAILCLOUD:Backup/restic_beckupas
+      COMMAND: rclone sync -v /backup_data MAILCLOUD:Backup/restic_backup
       # config
       RCLONE_CONFIG_MAILCLOUD_TYPE: mailru
       RCLONE_CONFIG_MAILCLOUD_USER: ${MAILCLOUD_USER}
@@ -18,5 +18,5 @@ services:
       PGID: ${PGID:-1000}
     restart: unless-stopped
     volumes:
-      - /media/restic:/beckaups_data
+      - /media/restic:/backup_data
 networks: {}
