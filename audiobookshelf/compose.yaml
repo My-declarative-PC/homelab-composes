@@ -8,8 +8,8 @@ services:
     volumes:
       - /media/jellyfin/Books/Audiobooks:/audiobooks
       - /media/jellyfin/Podcast:/podcasts
-      - ./${CONTAINER_NAME}_data/config:/config
-      - ./${CONTAINER_NAME}_data/metadata:/metadata
+      - ./${CONTAINER_NAME}_data/config/config:/config
+      - ./${CONTAINER_NAME}_data/config/metadata:/metadata
     environment:
       TZ: ${TZ:-Europe/Moscow}
     network_mode: service:gluetun_abs
@@ -68,7 +68,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
   ## prune
   prune_restic__audiobookshelf:
     extends:

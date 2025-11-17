@@ -62,6 +62,8 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
   ## prune
   prune_restic__jellyfin:
     extends:
