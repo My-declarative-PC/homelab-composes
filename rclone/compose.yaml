@@ -21,7 +21,7 @@ services:
       PGID: ${PGID:-1000}
     restart: unless-stopped
     volumes:
-      - /backup/ssd/restic:/backup_data
+      - /backup/ssd/restic:/backup_data:ro
   #
   ##
   ### USB Flash
@@ -39,6 +39,6 @@ services:
       PGID: ${PGID:-1000}
     restart: unless-stopped
     volumes:
-      - /backup/ssd/restic:/backup_data
+      - /backup/ssd/restic:/backup_data:ro
       - /backup/flash/restic:/second_backup_data
 networks: {}
