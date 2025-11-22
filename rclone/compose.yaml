@@ -41,4 +41,28 @@ services:
     volumes:
       - /backup/ssd/restic:/backup_data
       - /backup/flash/restic:/second_backup_data
+  #
+  ##
+  ### SMB on Router
+  rclone_smb:
+    image: ghcr.io/my-declarative-pc/docker-rclone-cron
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_to_smb
+    environment:
+      CRON_SCHEDULE: "*/6 * * * *"
+      COMMAND: rclone sync -v /beckaups_data SMBROUT:/external/Backup/restic_beckupas
+      # config
+      RCLONE_CONFIG_SMBROUT_TYPE: smb
+      RCLONE_CONFIG_SMBROUT_USER: ${SMBROUT_USER}
+      RCLONE_CONFIG_SMBROUT_PASS: ${SMBROUT_PASS}
+      RCLONE_CONFIG_SMBROUT_HOST: ${SMBROUT_HOST}
+      # other
+      TZ: ${TZ:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    restart: unless-stopped
+    volumes:
+      - /media/restic:/beckaups_data
+    network_mode: host
 networks: {}
