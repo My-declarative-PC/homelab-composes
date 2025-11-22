@@ -28,16 +28,19 @@ services:
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
       - /home/.beszel:/extra-filesystems/sdb__home:ro
       - /media/.beszel:/extra-filesystems/sdc__media:ro
+      - /backup/flash/.beszel:/extra-filesystems/sdd__flash:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
       KEY: ${KEY}
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
+      SMART_DEVICES: ${SMART_DEVICES}
     devices:
       - /dev/sda:/dev/sda
       - /dev/sdb:/dev/sdb
-      - /dev/sdc:/dev/sdc
+      - /dev/disk/by-uuid/${UUID_SDC}:/dev/sdc
+      - /dev/disk/by-uuid/${UUID_SDD}:/dev/sdd
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
