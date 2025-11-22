@@ -1,5 +1,8 @@
 services:
-  rclone:
+  #
+  ##
+  ### Mail.Ru Cloud
+  rclone_mailcloud:
     image: ghcr.io/my-declarative-pc/docker-rclone-cron
     labels:
       - com.centurylinklabs.watchtower.enable=true
@@ -19,4 +22,23 @@ services:
     restart: unless-stopped
     volumes:
       - /backup/ssd/restic:/backup_data
+  #
+  ##
+  ### USB Flash
+  rclone_flash:
+    image: ghcr.io/my-declarative-pc/docker-rclone-cron
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_to_usb-flash
+    environment:
+      CRON_SCHEDULE: 5 */6 * * *
+      COMMAND: rclone sync -v /backup_data /second_backup_data
+      # other
+      TZ: ${TZ:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    restart: unless-stopped
+    volumes:
+      - /backup/ssd/restic:/backup_data
+      - /backup/flash/restic:/second_backup_data
 networks: {}
