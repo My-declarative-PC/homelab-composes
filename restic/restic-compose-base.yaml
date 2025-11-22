@@ -33,7 +33,7 @@ services:
     volumes:
       - ./${CONTAINER_NAME}_data/config:/backup_data:ro
       - ./${CONTAINER_NAME}_data/backup_restore:/restore_data
-      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   prune:
@@ -53,7 +53,7 @@ services:
       RESTIC_PRUNE_ARGS: >
         --verbose
     volumes:
-      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
 
   check:
     image: mazzolino/restic
@@ -73,4 +73,4 @@ services:
         --read-data-subset=10%
         --verbose
     volumes:
-      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
