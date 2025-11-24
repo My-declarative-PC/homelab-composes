@@ -62,4 +62,9 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
-networks: {}
+#
+# NetWorks
+#
+networks:
+  apprise_notification: 
+    external: true

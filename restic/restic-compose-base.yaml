@@ -5,6 +5,8 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     container_name: ${CONTAINER_NAME}_restic__backup
     restart: unless-stopped
+    networks:
+      - apprise_notification
     environment:
       RUN_ON_STARTUP: "false"
       BACKUP_CRON: "0 30 3 * * *"
@@ -12,8 +14,12 @@ services:
       # docker control
       PRE_COMMANDS: |-
         docker stop ${CONTAINER_NAME}_main
-      POST_COMMANDS_SUCCESS: |-
+      POST_COMMANDS_EXIT: |-
         docker start ${CONTAINER_NAME}_main
+      POST_COMMANDS_FAILURE: |-
+        curl -X POST --data "{\"title\": \"☠️ restic (${CONTAINER_NAME})\", \"body\": \"Backup **FAILURE**!!!\"}" http://apprise_notification:5000
+      POST_COMMANDS_INCOMPLETE: |-
+        curl -X POST --data "{\"title\": \"☠️ restic (${CONTAINER_NAME})\", \"body\": \"Backup **INCOMPLETE**!!!\"}" http://apprise_notification:5000
       # restic settings
       RESTIC_COMPRESSION: auto
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
