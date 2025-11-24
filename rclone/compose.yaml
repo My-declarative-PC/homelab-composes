@@ -41,4 +41,7 @@ services:
     volumes:
       - /backup/ssd/restic:/backup_data:ro
       - /backup/flash/restic:/second_backup_data
+#
+# NetWorks
+#
 networks: {}

@@ -27,4 +27,7 @@ services:
       - /media/smb/public:/samba/public
       - /media/smb/share/${MAIN_USER}:/samba/${MAIN_USER}
       - /media/smb/share/${SECUR_USER}:/samba/${SECUR_USER}
+#
+# NetWorks
+#
 networks: {}

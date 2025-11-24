@@ -32,6 +32,9 @@ services:
       - homepage.widget.type=pihole
       - homepage.widget.url=http://pihole
       - homepage.widget.key=${HOMEPAGE_VAR_PIHOLE_API_TOKEN:-pony}
+#
+# NetWorks
+#
 networks:
   nano-server-net:
     external: true

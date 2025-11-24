@@ -12,4 +12,7 @@ services:
       - /ssd_data:/mnt/ssd:ro
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
+#
+# NetWorks
+#
 networks: {}
