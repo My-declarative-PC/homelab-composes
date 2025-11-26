@@ -39,8 +39,8 @@ services:
     devices:
       - /dev/sda:/dev/sda
       - /dev/sdb:/dev/sdb
-      - /dev/disk/by-uuid/${UUID_SDC}:/dev/sdc
-      - /dev/disk/by-uuid/${UUID_SDD}:/dev/sdd
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
