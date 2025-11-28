@@ -1,18 +1,24 @@
 services:
-  apprise_notification:
+  apprise_notification__bed:
     image: mazzolino/apprise-microservice:0.1
-    container_name: ${CONTAINER_NAME}_main
+    container_name: ${CONTAINER_NAME}_bed
     labels:
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     networks:
       - apprise_notification
-    volumes:
-      - ./${CONTAINER_NAME}_data/config:/config
-      - ./${CONTAINER_NAME}_data/plugin:/plugin
-      - ./${CONTAINER_NAME}_data/attach:/attach
     environment:
-      NOTIFICATION_URLS: tgram://${TG_TOKEN}/${TG_CHAT_ID}
+      NOTIFICATION_URLS: tgram://${TG_TOKEN_BED}/${TG_CHAT_ID_BED}
+  apprise_notification__good:
+    image: mazzolino/apprise-microservice:0.1
+    container_name: ${CONTAINER_NAME}_good
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    networks:
+      - apprise_notification
+    environment:
+      NOTIFICATION_URLS: tgram://${TG_TOKEN_GOOD}/${TG_CHAT_ID_GOOD}
 #
 # NetWorks
 #
