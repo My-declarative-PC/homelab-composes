@@ -17,9 +17,9 @@ services:
       POST_COMMANDS_EXIT: |-
         docker start ${CONTAINER_NAME}_main
       POST_COMMANDS_FAILURE: |-
-        curl -X POST --data "{\"title\": \"☠️ restic (${CONTAINER_NAME})\", \"body\": \"Backup **FAILURE**!!!\"}" http://apprise_notification:5000
+        curl -X POST --data "{\"title\": \"⚠️ Report from Count Unacceptability:\", \"body\": \"Post-backup commands have FAILED for container: ${CONTAINER_NAME}.\nThe system attempted its solemn duties, yet the sequence collapsed into disarray.\n\nImmediate attention is required.\"}" http://apprise_notification__bed:5000
       POST_COMMANDS_INCOMPLETE: |-
-        curl -X POST --data "{\"title\": \"☠️ restic (${CONTAINER_NAME})\", \"body\": \"Backup **INCOMPLETE**!!!\"}" http://apprise_notification:5000
+        curl -X POST --data "{\"title\": \"⚠️ Report from Count Unacceptability:\", \"body\": \"Post-backup commands are INCOMPLETE for container: ${CONTAINER_NAME}.\nSome operations staggered forward, others fell behind into procedural gloom.\n\nReview the aftermath to restore order.\"}" http://apprise_notification__bed:5000
       # restic settings
       RESTIC_COMPRESSION: auto
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
