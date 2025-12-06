@@ -36,11 +36,6 @@ services:
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
       SMART_DEVICES: ${SMART_DEVICES}
-    devices:
-      - /dev/sda:/dev/sda
-      - /dev/sdb:/dev/sdb
-      - /dev/sdc:/dev/sdc
-      - /dev/sdd:/dev/sdd
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
@@ -66,5 +61,5 @@ services:
 # NetWorks
 #
 networks:
-  apprise_notification: 
+  apprise_notification:
     external: true
