@@ -76,7 +76,7 @@ services:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
       RESTIC_REPOSITORY: /mnt/restic
       RESTIC_CHECK_ARGS: >-
-        --read-data-subset=10%
+        --read-data-subset=50%
         --verbose
     volumes:
       - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
