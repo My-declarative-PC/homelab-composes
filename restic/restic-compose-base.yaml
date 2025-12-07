@@ -69,14 +69,14 @@ services:
     restart: unless-stopped
     environment:
       SKIP_INIT: "true"
-      RUN_ON_STARTUP: "false"
+      RUN_ON_STARTUP: "true"
       CHECK_CRON: "0 15 5 * * *"
       TZ: ${TZ:-Europe/Moscow}
       # restic settings
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
       RESTIC_REPOSITORY: /mnt/restic
       RESTIC_CHECK_ARGS: >-
-        --read-data-subset=50%
+        --read-data-subset=60%
         --verbose
     volumes:
       - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
