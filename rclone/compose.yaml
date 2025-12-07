@@ -31,7 +31,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_to_usb-flash
     environment:
-      CRON_SCHEDULE: 5 */6 * * *
+      CRON_SCHEDULE: 15 */6 * * *
       COMMAND: rclone sync -v /backup_data /second_backup_data
       # other
       TZ: ${TZ:-Europe/Moscow}
@@ -41,6 +41,25 @@ services:
     volumes:
       - /backup/ssd/restic:/backup_data:ro
       - /backup/flash/restic:/second_backup_data
+  #
+  ##
+  ### hdd
+  rclone_hdd:
+    image: ghcr.io/my-declarative-pc/docker-rclone-cron
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_to_hdd
+    environment:
+      CRON_SCHEDULE: 25 */6 * * *
+      COMMAND: rclone sync -v /backup_data /second_backup_data
+      # other
+      TZ: ${TZ:-Europe/Moscow}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    restart: unless-stopped
+    volumes:
+      - /backup/ssd/restic:/backup_data:ro
+      - /backup/hdd/restic:/second_backup_data
 #
 # NetWorks
 #
