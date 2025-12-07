@@ -29,6 +29,7 @@ services:
       - /home/.beszel:/extra-filesystems/sdb__home:ro
       - /media/.beszel:/extra-filesystems/sdc__media:ro
       - /backup/flash/.beszel:/extra-filesystems/sdd__flash:ro
+      - /backup/hdd/.beszel:/extra-filesystems/sde__hdd:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
