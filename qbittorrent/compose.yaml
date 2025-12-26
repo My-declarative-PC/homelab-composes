@@ -14,7 +14,7 @@ services:
       - ${TORRENTING_PORT:-6881}:${TORRENTING_PORT:-6881}/udp
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config
-      - /media/downoads:/downloads
+      - /media/downloads:/downloads
     restart: unless-stopped
     labels:
       # WatchTower
@@ -36,7 +36,7 @@ services:
       TORRENTING_PORT: ${VPN_TORRENTING_PORT:-6882}
     volumes:
       - ./vpn_${CONTAINER_NAME}_data/config:/config
-      - /media/downoads:/downloads
+      - /media/downloads:/downloads
     restart: unless-stopped
     labels:
       # WatchTower
