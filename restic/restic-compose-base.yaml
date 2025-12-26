@@ -5,6 +5,8 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     container_name: ${CONTAINER_NAME}_restic__backup
     restart: unless-stopped
+    networks:
+      - apprise_notification
     environment:
       RUN_ON_STARTUP: "false"
       BACKUP_CRON: "0 30 3 * * *"
@@ -12,8 +14,12 @@ services:
       # docker control
       PRE_COMMANDS: |-
         docker stop ${CONTAINER_NAME}_main
-      POST_COMMANDS_SUCCESS: |-
+      POST_COMMANDS_EXIT: |-
         docker start ${CONTAINER_NAME}_main
+      POST_COMMANDS_FAILURE: |-
+        curl -X POST --data "{\"title\": \"⚠️ Report from Count Unacceptability:\", \"body\": \"Post-backup commands have FAILED for container: ${CONTAINER_NAME}.\nThe system attempted its solemn duties, yet the sequence collapsed into disarray.\n\nImmediate attention is required.\"}" http://apprise_notification__bed:5000
+      POST_COMMANDS_INCOMPLETE: |-
+        curl -X POST --data "{\"title\": \"⚠️ Report from Count Unacceptability:\", \"body\": \"Post-backup commands are INCOMPLETE for container: ${CONTAINER_NAME}.\nSome operations staggered forward, others fell behind into procedural gloom.\n\nReview the aftermath to restore order.\"}" http://apprise_notification__bed:5000
       # restic settings
       RESTIC_COMPRESSION: auto
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
@@ -33,7 +39,7 @@ services:
     volumes:
       - ./${CONTAINER_NAME}_data/config:/backup_data:ro
       - ./${CONTAINER_NAME}_data/backup_restore:/restore_data
-      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   prune:
@@ -53,7 +59,7 @@ services:
       RESTIC_PRUNE_ARGS: >
         --verbose
     volumes:
-      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
 
   check:
     image: mazzolino/restic
@@ -63,14 +69,14 @@ services:
     restart: unless-stopped
     environment:
       SKIP_INIT: "true"
-      RUN_ON_STARTUP: "false"
+      RUN_ON_STARTUP: "true"
       CHECK_CRON: "0 15 5 * * *"
       TZ: ${TZ:-Europe/Moscow}
       # restic settings
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:-123}
       RESTIC_REPOSITORY: /mnt/restic
       RESTIC_CHECK_ARGS: >-
-        --read-data-subset=10%
+        --read-data-subset=60%
         --verbose
     volumes:
-      - /media/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic

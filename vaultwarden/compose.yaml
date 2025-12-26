@@ -23,6 +23,8 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
     environment:
       BACKUP_CRON: 0 0 */6 * * *
   ## prune
@@ -37,4 +39,9 @@ services:
       service: check
     environment:
       CHECK_CRON: 0 1 */12 * * *
-networks: {}
+#
+# NetWorks
+#
+networks:
+  apprise_notification: 
+    external: true

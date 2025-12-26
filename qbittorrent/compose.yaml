@@ -14,7 +14,7 @@ services:
       - ${TORRENTING_PORT:-6881}:${TORRENTING_PORT:-6881}/udp
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config
-      - /media/jellyfin/Downloads:/downloads
+      - /media/downoads:/downloads
     restart: unless-stopped
     labels:
       # WatchTower
@@ -36,7 +36,7 @@ services:
       TORRENTING_PORT: ${VPN_TORRENTING_PORT:-6882}
     volumes:
       - ./vpn_${CONTAINER_NAME}_data/config:/config
-      - /media/jellyfin/Downloads:/downloads
+      - /media/downoads:/downloads
     restart: unless-stopped
     labels:
       # WatchTower
@@ -79,4 +79,7 @@ services:
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8002
+#
+# NetWorks
+#
 networks: {}

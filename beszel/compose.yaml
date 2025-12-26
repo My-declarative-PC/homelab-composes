@@ -28,17 +28,39 @@ services:
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
       - /home/.beszel:/extra-filesystems/sdb__home:ro
       - /media/.beszel:/extra-filesystems/sdc__media:ro
+      - /backup/flash/.beszel:/extra-filesystems/sdd__flash:ro
+      - /backup/hdd/.beszel:/extra-filesystems/sde__hdd:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
       KEY: ${KEY}
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
-    devices:
-      - /dev/sda:/dev/sda
-      - /dev/sdb:/dev/sdb
-      - /dev/sdc:/dev/sdc
+      SMART_DEVICES: ${SMART_DEVICES}
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
-networks: {}
+  # BeckUps
+  ## main
+  backup_restic__beszel:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+  ## prune
+  prune_restic__beszel:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__beszel:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check
+#
+# NetWorks
+#
+networks:
+  apprise_notification:
+    external: true

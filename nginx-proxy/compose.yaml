@@ -13,6 +13,9 @@ services:
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
+#
+# NetWorks
+#
 networks:
   nano-server-net:
     external: true

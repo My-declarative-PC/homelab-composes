@@ -8,8 +8,8 @@ services:
     volumes:
       - /media/jellyfin/Books/Audiobooks:/audiobooks
       - /media/jellyfin/Podcast:/podcasts
-      - ./${CONTAINER_NAME}_data/config:/config
-      - ./${CONTAINER_NAME}_data/metadata:/metadata
+      - ./${CONTAINER_NAME}_data/config/config:/config
+      - ./${CONTAINER_NAME}_data/config/metadata:/metadata
     environment:
       TZ: ${TZ:-Europe/Moscow}
     network_mode: service:gluetun_abs
@@ -17,24 +17,6 @@ services:
       gluetun_abs:
         condition: service_healthy
         restart: true
-  apprise_abs:
-    image: caronc/apprise:latest
-    container_name: ${CONTAINER_NAME}_apprise
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    restart: unless-stopped
-    network_mode: service:gluetun_abs
-    depends_on:
-      gluetun_abs:
-        condition: service_healthy
-        restart: true
-    volumes:
-      - ./${CONTAINER_NAME}_data/apprise_api/config:/config
-      - ./${CONTAINER_NAME}_data/apprise_api/plugin:/plugin
-      - ./${CONTAINER_NAME}_data/apprise_api/attach:/attach
-    environment:
-      APPRISE_WORKER_COUNT: 1
-      APPRISE_STATEFUL_MODE: simple
   gluetun_abs:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
@@ -50,6 +32,8 @@ services:
       - 13379:8000
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun
+    networks:
+      - apprise_notification
     environment:
       VPN_TYPE: wireguard
       VPN_SERVICE_PROVIDER: custom
@@ -68,7 +52,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data:/beckaups_data:ro
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
   ## prune
   prune_restic__audiobookshelf:
     extends:
@@ -79,4 +63,9 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
-networks: {}
+#
+# NetWorks
+#
+networks:
+  apprise_notification: 
+    external: true
