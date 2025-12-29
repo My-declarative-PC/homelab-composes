@@ -1,0 +1,56 @@
+services:
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:15
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_main
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      INSECURE: true
+      INIT_ENABLED: ${INIT_ENABLED}
+      INIT_USERNAME: ${INIT_USERNAME}
+      INIT_PASSWORD: ${INIT_PASSWORD}
+      INIT_HOST: ${INIT_HOST}
+      INIT_PORT: ${INIT_PORT}
+      INIT_DNS: ${INIT_DNS}
+      INIT_IPV4_CIDR: ${INIT_IPV4_CIDR}
+      INIT_IPV6_CIDR: ${INIT_IPV6_CIDR}
+    networks:
+      wg:
+        ipv4_address: 10.42.42.42
+    volumes:
+      - ./${CONTAINER_NAME}_data/wg:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "51820:51820/udp"
+      - "51821:51821/tcp"
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.all.forwarding=1
+      - net.ipv6.conf.default.forwarding=1
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_dns
+    network_mode: host
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      SUBDOMAINS: ${DOMAINS}
+      TOKEN: ${TOKEN}
+    volumes:
+      - ./${CONTAINER_NAME}_data/dns:/config
+    restart: unless-stopped
+networks:
+  wg:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.42.42.0/24
