@@ -1,0 +1,49 @@
+services:
+  traefik:
+    image: traefik:v3
+    container_name: ${CONTAINER_NAME}_main
+    labels:
+      # watchtower
+      com.centurylinklabs.watchtower.enable: true
+      # traefik
+      traefik.enable: "true"
+      traefik.http.routers.dashboard.rule: "Host(`traefik.${DOMAIN}`)"
+      traefik.http.routers.dashboard.entrypoints: "websecure"
+      traefik.http.routers.dashboard.tls.certresolver: "letsencrypt"
+      traefik.http.routers.dashboard.service: api@internal
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      CF_DNS_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./${CONTAINER_NAME}_data/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./${CONTAINER_NAME}_data/acme.json:/acme/acme.json
+  # 
+  # BeckUps
+  # 
+  ## main
+  backup_restic__traefik:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+  ## prune
+  prune_restic__traefik:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__traefik:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check
+#
+# NetWorks
+#
+networks:
+  apprise_notification: 
+    external: true
