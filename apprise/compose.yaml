@@ -8,6 +8,7 @@ services:
     networks:
       - apprise_notification
     environment:
+      TZ: ${TZ:-Europe/Moscow}
       NOTIFICATION_URLS: tgram://${TG_TOKEN_BED}/${TG_CHAT_ID_BED}
   apprise_notification__good:
     image: mazzolino/apprise-microservice:0.1
@@ -18,6 +19,7 @@ services:
     networks:
       - apprise_notification
     environment:
+      TZ: ${TZ:-Europe/Moscow}
       NOTIFICATION_URLS: tgram://${TG_TOKEN_GOOD}/${TG_CHAT_ID_GOOD}
 #
 # NetWorks

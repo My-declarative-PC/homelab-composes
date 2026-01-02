@@ -1,11 +1,39 @@
 services:
-  main:
-    image: rongronggg9/rss-to-telegram:dev 
-    container_name: rsstt 
+  rsstt:
+    image: rongronggg9/rss-to-telegram
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped
     volumes:
-      - ./config:/app/config
+      - ./${CONTAINER_NAME}_data:/app/config
     environment:
+      TZ: ${TZ:-Europe/Moscow}
       TOKEN: ${TOKEN:-token}
       MANAGER: ${MANAGER:-manager}
-      TELEGRAPH_TOKEN: ${TELEGRAPH_TOKEN:-telegraph_token}
+  #
+  # BeckUps
+  #
+  ## main
+  backup_restic__rsstt:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data:/backup_data:ro
+  ## prune
+  prune_restic__rsstt:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__rsstt:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check
+#
+# NetWorks
+#
+networks:
+  apprise_notification: 
+    external: true
