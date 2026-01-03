@@ -9,7 +9,7 @@ services:
     container_name: ${CONTAINER_NAME}_to_mail-cloud
     environment:
       CRON_SCHEDULE: 5 */6 * * *
-      COMMAND: rclone sync -v /backup_data MAILCLOUD:Backup/restic_backup
+      COMMAND: rclone sync -v /backup_data MAILCLOUD:Backup/restic_backup/${MAILCLOUD_SUB_DIR}
       # config
       RCLONE_CONFIG_MAILCLOUD_TYPE: mailru
       RCLONE_CONFIG_MAILCLOUD_USER: ${MAILCLOUD_USER}
