@@ -64,6 +64,8 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     environment:
+      BACKUP_CRON: "0 50 3 * * *"
+      RESTIC_COMPRESSION: max
       PRE_COMMANDS: |-
         docker stop ${CONTAINER_NAME}_main
         docker stop ${CONTAINER_NAME}_db
