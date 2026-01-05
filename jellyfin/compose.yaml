@@ -1,5 +1,6 @@
 services:
   jellyfin:
+    runtime: runc
     image: lscr.io/linuxserver/jellyfin:latest
     labels:
       - com.centurylinklabs.watchtower.enable=true
