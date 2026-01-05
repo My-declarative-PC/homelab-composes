@@ -19,6 +19,8 @@ services:
       - "443:443"
     environment:
       CF_DNS_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+    networks:
+      - traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./${CONTAINER_NAME}_data/traefik.yml:/etc/traefik/traefik.yml:ro
@@ -47,5 +49,7 @@ services:
 # NetWorks
 #
 networks:
+  traefik:
+    external: true
   apprise_notification: 
     external: true

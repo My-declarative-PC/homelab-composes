@@ -2,11 +2,19 @@ services:
   wg-easy:
     image: ghcr.io/wg-easy/wg-easy:15
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      # watchtower
+      com.centurylinklabs.watchtower.enable: true
+      # traefik
+      traefik.enable: "true"
+      traefik.http.routers.wg-easy.rule: Host(`${INIT_HOST}`)
+      traefik.http.routers.wg-easy.entrypoints: websecure
+      traefik.http.routers.wg-easy.tls: "true"
+      traefik.http.routers.wg-easy.tls.certresolver: letsencrypt
+      traefik.http.services.wg-easy.loadbalancer.server.port: 51821
     container_name: ${CONTAINER_NAME}_main
     environment:
       TZ: ${TZ:-Europe/Moscow}
-      INSECURE: true
+      INSECURE: false
       INIT_ENABLED: ${INIT_ENABLED}
       INIT_USERNAME: ${INIT_USERNAME}
       INIT_PASSWORD: ${INIT_PASSWORD}
@@ -16,14 +24,14 @@ services:
       INIT_IPV4_CIDR: ${INIT_IPV4_CIDR}
       INIT_IPV6_CIDR: ${INIT_IPV6_CIDR}
     networks:
+      traefik: {}
       wg:
         ipv4_address: 10.42.42.42
     volumes:
       - ./${CONTAINER_NAME}_data/wg:/etc/wireguard
       - /lib/modules:/lib/modules:ro
     ports:
-      - "51820:51820/udp"
-      - "51821:51821/tcp"
+      - "${INIT_PORT}:${INIT_PORT}/udp"
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -34,20 +42,14 @@ services:
       - net.ipv6.conf.all.disable_ipv6=0
       - net.ipv6.conf.all.forwarding=1
       - net.ipv6.conf.default.forwarding=1
-  duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    container_name: ${CONTAINER_NAME}_dns
-    network_mode: host
-    environment:
-      TZ: ${TZ:-Europe/Moscow}
-      SUBDOMAINS: ${DOMAINS}
-      TOKEN: ${TOKEN}
-    volumes:
-      - ./${CONTAINER_NAME}_data/dns:/config
-    restart: unless-stopped
+#
+# NetWorks
+#
 networks:
+  apprise_notification: 
+    external: true
+  traefik:
+    external: true
   wg:
     driver: bridge
     ipam:
