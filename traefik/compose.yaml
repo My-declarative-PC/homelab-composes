@@ -23,7 +23,7 @@ services:
       - traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./${CONTAINER_NAME}_data/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./${CONTAINER_NAME}_data/acme.json:/acme/acme.json
   # 
   # BeckUps
