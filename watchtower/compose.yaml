@@ -1,6 +1,6 @@
 services:
   watchtower:
-    image: containrrr/watchtower
+    image: ghcr.io/nicholas-fedor/watchtower:latest
     container_name: ${CONTAINER_NAME}_main
     labels:
       - com.centurylinklabs.watchtower.enable=true
