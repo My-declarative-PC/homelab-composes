@@ -17,6 +17,9 @@ services:
       gluetun_abs:
         condition: service_healthy
         restart: true
+  #
+  # VPN
+  #
   gluetun_abs:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
@@ -46,7 +49,9 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8001
       DNS_UPSTREAM_RESOLVERS: 'quad9'
+  #
   # BeckUps
+  #
   ## main
   backup_restic__audiobookshelf:
     extends:
