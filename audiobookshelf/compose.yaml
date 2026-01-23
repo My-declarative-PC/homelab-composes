@@ -48,8 +48,7 @@ services:
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8001
-      DNS_UPSTREAM_RESOLVERS: 'quad9'
-  #
+      DNS_UPSTREAM_RESOLVERS: quad9
   # BeckUps
   #
   ## main
@@ -73,5 +72,5 @@ services:
 # NetWorks
 #
 networks:
-  apprise_notification: 
+  apprise_notification:
     external: true
