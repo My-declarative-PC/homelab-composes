@@ -1,0 +1,21 @@
+log:
+  level: INFO
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+api:
+  dashboard: true
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@timofey-awesome-cloud.ru
+      storage: /acme/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 10

@@ -1,0 +1,39 @@
+services:
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_main
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: ${TZ:-Europe/Moscow}
+      LOG_CONFS: true
+    volumes:
+      # in wg config add in '[Interface]' - section
+      # `PostUp   = iptables -t nat -A POSTROUTING -s 10.6.0.0/24 -o eth0 -j MASQUERADE`
+      # `PostDown = iptables -t nat -D POSTROUTING -s 10.6.0.0/24 -o eth0 -j MASQUERADE`
+      - ./${CONTAINER_NAME}_data/wg:/config
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_dns
+    network_mode: host
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      SUBDOMAINS: ${DOMAINS}
+      TOKEN: ${TOKEN}
+    volumes:
+      - ./${CONTAINER_NAME}_data/dns:/config
+    restart: unless-stopped
