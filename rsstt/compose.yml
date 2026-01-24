@@ -20,29 +20,13 @@ services:
   # VPN
   #
   gluetun_rsstt:
-    image: qmcgaw/gluetun
-    container_name: ${CONTAINER_NAME}_vpn
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
+    extends:
+      file: ../gluetun/gluetun-compose-base.yaml
+      service: gluetun
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun
     environment:
-      VPN_TYPE: wireguard
-      VPN_SERVICE_PROVIDER: custom
-      WIREGUARD_ENDPOINT_IP: ${WIREGUARD_ENDPOINT_IP}
-      WIREGUARD_ENDPOINT_PORT: ${WIREGUARD_ENDPOINT_PORT}
-      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY}
-      WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES}
-      WIREGUARD_PUBLIC_KEY: ${WIREGUARD_PUBLIC_KEY}
-      WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
-      TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8003
-      DNS_UPSTREAM_RESOLVERS: 'quad9'
   #
   # BeckUps
   #
