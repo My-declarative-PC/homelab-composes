@@ -84,6 +84,11 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
+    environment:
+      CHECK_CRON: "0 35 5 * * *"
+      RESTIC_CHECK_ARGS: >-
+        --read-data-subset=20%
+        --verbose
 #
 # NetWorks
 #
