@@ -3,6 +3,7 @@ services:
     image: qmcgaw/gluetun
     container_name: ${CONTAINER_NAME}_vpn
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     cap_add:

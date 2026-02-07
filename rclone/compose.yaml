@@ -5,6 +5,7 @@ services:
   rclone_mailcloud:
     image: ghcr.io/my-declarative-pc/docker-rclone-cron
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_to_mail-cloud
     environment:
@@ -27,6 +28,7 @@ services:
   rclone_flash:
     image: ghcr.io/my-declarative-pc/docker-rclone-cron
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_to_usb-flash
     environment:
@@ -46,6 +48,7 @@ services:
   rclone_hdd:
     image: ghcr.io/my-declarative-pc/docker-rclone-cron
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_to_hdd
     environment:

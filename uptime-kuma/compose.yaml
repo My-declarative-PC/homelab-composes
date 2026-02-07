@@ -13,6 +13,7 @@ services:
       - ./${CONTAINER_NAME}_data/config:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
+      - autoheal-app=true
       # WatchTower
       - com.centurylinklabs.watchtower.enable=true
       # HomePage

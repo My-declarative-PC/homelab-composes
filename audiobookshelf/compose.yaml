@@ -3,6 +3,7 @@ services:
     image: ghcr.io/advplyr/audiobookshelf:latest
     container_name: ${CONTAINER_NAME}_main
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     volumes:

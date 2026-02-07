@@ -2,6 +2,7 @@ services:
   vaultwarden:
     image: vaultwarden/server:latest
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     environment:

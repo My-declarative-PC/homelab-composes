@@ -3,6 +3,7 @@ services:
     image: henrygd/beszel:latest
     container_name: ${CONTAINER_NAME}_main
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     environment:
@@ -18,6 +19,7 @@ services:
     image: henrygd/beszel-agent-intel
     container_name: ${CONTAINER_NAME}_lockal_agent
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     network_mode: host

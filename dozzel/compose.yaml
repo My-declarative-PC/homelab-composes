@@ -2,6 +2,7 @@ services:
   dozzle:
     image: amir20/dozzle:latest
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     environment:
@@ -18,6 +19,7 @@ services:
     image: amir20/dozzle:latest
     command: agent
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_agent
     healthcheck:

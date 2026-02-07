@@ -2,7 +2,8 @@ services:
   backup:
     image: mazzolino/restic
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_restic__backup
     restart: unless-stopped
     networks:
@@ -28,11 +29,6 @@ services:
         --tag docker-${CONTAINER_NAME}
         --skip-if-unchanged
         --verbose
-      RESTIC_FORGET_ARGS: >-
-        --keep-last 10
-        --keep-daily 7
-        --keep-weekly 5
-        --keep-monthly 12
       # beckaup forlder in conteiner
       RESTIC_BACKUP_SOURCES: /backup_data
 
@@ -45,7 +41,8 @@ services:
   prune:
     image: mazzolino/restic
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_restic__prune
     restart: unless-stopped
     environment:
@@ -64,7 +61,8 @@ services:
   check:
     image: mazzolino/restic
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_restic__check
     restart: unless-stopped
     environment:

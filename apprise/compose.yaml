@@ -3,6 +3,7 @@ services:
     image: mazzolino/apprise-microservice:0.1
     container_name: ${CONTAINER_NAME}_bed
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     networks:
@@ -14,6 +15,7 @@ services:
     image: mazzolino/apprise-microservice:0.1
     container_name: ${CONTAINER_NAME}_good
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     networks:

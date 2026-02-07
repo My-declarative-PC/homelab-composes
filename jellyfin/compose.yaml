@@ -3,6 +3,7 @@ services:
     runtime: runc
     image: lscr.io/linuxserver/jellyfin:latest
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     environment:

@@ -2,6 +2,7 @@ services:
   samba:
     image: crazymax/samba
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped

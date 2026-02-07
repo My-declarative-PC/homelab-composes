@@ -2,6 +2,7 @@ services:
   wireguard:
     image: lscr.io/linuxserver/wireguard:latest
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     cap_add:
@@ -27,6 +28,7 @@ services:
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     labels:
+      - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_dns
     network_mode: host

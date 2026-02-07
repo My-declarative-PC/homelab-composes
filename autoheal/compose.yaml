@@ -1,0 +1,20 @@
+services:
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: ${CONTAINER_NAME}_main
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    network_mode: none
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      AUTOHEAL_CONTAINER_LABEL: autoheal-app
+      AUTOHEAL_INTERVAL: 20
+      AUTOHEAL_ONLY_MONITOR_RUNNING: false
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+#
+# NetWorks
+#
+networks: {}

@@ -18,6 +18,7 @@ services:
       - /media/downloads:/downloads
     restart: unless-stopped
     labels:
+      - autoheal-app=true
       # WatchTower
       - com.centurylinklabs.watchtower.enable=true
       # HomePage 
@@ -40,6 +41,7 @@ services:
       - /media/downloads:/downloads
     restart: unless-stopped
     labels:
+      - autoheal-app=true
       # WatchTower
       - com.centurylinklabs.watchtower.enable=true
       # HomePage 

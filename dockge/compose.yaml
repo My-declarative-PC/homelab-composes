@@ -15,6 +15,7 @@ services:
       - ./${CONTAINER_NAME}_data/dockge:/app/data
       - ${DOCKGE_STACKS_DIR:-/opt/stacks}:${DOCKGE_STACKS_DIR:-/opt/stacks}
     labels:
+      - autoheal-app=true
       # WatchTower
       - com.centurylinklabs.watchtower.enable=true
       # HomePage
