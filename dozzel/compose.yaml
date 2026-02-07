@@ -7,12 +7,35 @@ services:
     environment:
       TZ: ${TZ:-Europe/Moscow}
       DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_REMOTE_AGENT: ${CONTAINER_NAME}_agent:7007
+      DOZZLE_DATA_DIR: /data
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./${CONTAINER_NAME}_data:/data
     restart: unless-stopped
     ports:
       - 8765:8080
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    container_name: ${CONTAINER_NAME}_agent
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      start_interval: 5s
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      DOZZLE_HOSTNAME: ${AGENT_HOSTNAME}
+      DOZZLE_AGENT_NAME: ${AGENT_NAME}
+      DOZZLE_AGENT_KEY: ${AGENT_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 7007:7007
+    restart: unless-stopped
 #
 # NetWorks
 #
