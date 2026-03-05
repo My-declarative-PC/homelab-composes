@@ -42,6 +42,8 @@ services:
       service: backup
     volumes:
       - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+    environment:
+      BACKUP_CRON: "0 35 3 * * *"
   ## prune
   prune_restic__audiobookshelf:
     extends:
@@ -52,6 +54,8 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
+    environment:
+      CHECK_CRON: "0 25 5 * * *"
 #
 # NetWorks
 #
