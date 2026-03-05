@@ -37,6 +37,8 @@ services:
       service: backup
     volumes:
       - ./${CONTAINER_NAME}_data:/backup_data:ro
+    environment:
+      BACKUP_CRON: "0 40 3 * * *"
   ## prune
   prune_restic__rsstt:
     extends:
@@ -47,6 +49,8 @@ services:
     extends:
       file: ../restic/restic-compose-base.yaml
       service: check
+    environment:
+      CHECK_CRON: "0 35 5 * * *"
 #
 # NetWorks
 #
