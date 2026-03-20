@@ -42,6 +42,26 @@ services:
       - net.ipv6.conf.all.disable_ipv6=0
       - net.ipv6.conf.all.forwarding=1
       - net.ipv6.conf.default.forwarding=1
+  # 
+  # BeckUps
+  # 
+  ## main
+  backup_restic__wg:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/wg:/backup_data:ro
+  ## prune
+  prune_restic__wg:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__wg:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check
 #
 # NetWorks
 #
