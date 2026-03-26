@@ -12,13 +12,11 @@ services:
       PUID: ${PUID:-1000}
       PGID: ${PGID:-1000}
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/config
-      - /tmp/${CONTAINER_NAME}_cache:/cache
-      - /media/jellyfin/TV_Shows:/data/tvshows
-      - /media/jellyfin/Films:/data/movies
-      - /media/jellyfin/Books:/data/books
-      - /media/jellyfin/Anime:/data/anime
-      - /media/jellyfin/Podcast:/data/podcast
+      - ./${CONTAINER_NAME}_data/config:/config:z
+      - /tmp/${CONTAINER_NAME}_cache:/cache:Z
+      - /media/jellyfin/Anime:/data/anime:Z
+      - /media/jellyfin/Films:/data/movies:Z
+      - /media/jellyfin/TV_Shows:/data/tvshows:Z
     restart: unless-stopped
     network_mode: service:gluetun_jelly
     healthcheck:
@@ -38,7 +36,7 @@ services:
       file: ../gluetun/gluetun-compose-base.yaml
       service: gluetun
     volumes:
-      - ./${CONTAINER_NAME}_data/gluetun:/gluetun
+      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
     environment:
       HTTP_CONTROL_SERVER_ADDRESS: :8004
     ports:
@@ -55,7 +53,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro,z
   ## prune
   prune_restic__jellyfin:
     extends:

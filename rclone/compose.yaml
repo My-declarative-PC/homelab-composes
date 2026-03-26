@@ -21,7 +21,7 @@ services:
       PGID: ${PGID:-1000}
     restart: unless-stopped
     volumes:
-      - /backup/ssd/restic:/backup_data:ro
+      - /backup/ssd/restic:/backup_data:ro,z
   #
   ##
   ### hdd
@@ -40,8 +40,8 @@ services:
       PGID: ${PGID:-1000}
     restart: unless-stopped
     volumes:
-      - /backup/ssd/restic:/backup_data:ro
-      - /backup/hdd/restic:/second_backup_data
+      - /backup/ssd/restic:/backup_data:ro,z
+      - /backup/hdd/restic:/second_backup_data:z
 #
 # NetWorks
 #
