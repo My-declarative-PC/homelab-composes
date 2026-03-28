@@ -13,24 +13,26 @@ services:
     ports:
       - 8090:8090
     volumes:
-      - ./beszel_socket:/beszel_socket
-      - ./${CONTAINER_NAME}_data/config:/beszel_data
+      - ./beszel_socket:/beszel_socket:z
+      - ./${CONTAINER_NAME}_data/config:/beszel_data:z
   beszel-agent:
     image: henrygd/beszel-agent-intel
     container_name: ${CONTAINER_NAME}_lockal_agent
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
+    security_opt:
+      - label:disable 
     restart: unless-stopped
     network_mode: host
     volumes:
-      - ./beszel_socket:/beszel_socket
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent
+      - ./beszel_socket:/beszel_socket:z
+      - /var/run/docker.sock:/var/run/docker.sock:ro,z
+      - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
-      - /home/.beszel:/extra-filesystems/sdb__home:ro
-      - /media/.beszel:/extra-filesystems/sdc__media:ro
-      - /backup/hdd/.beszel:/extra-filesystems/sde__hdd:ro
+      - /home/.beszel:/extra-filesystems/nvme0n1p2__home:ro
+      - /media/.beszel:/extra-filesystems/sda__media:ro
+      - /backup/hdd/.beszel:/extra-filesystems/sdb__hdd:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
@@ -48,7 +50,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro,z
   ## prune
   prune_restic__beszel:
     extends:
