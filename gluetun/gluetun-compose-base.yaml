@@ -8,10 +8,12 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    security_opt:
+      - label:disable
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - ./${CONTAINER_NAME}_data/gluetun:/gluetun
+      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
     environment:
       VPN_TYPE: wireguard
       VPN_SERVICE_PROVIDER: custom

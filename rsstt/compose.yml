@@ -6,7 +6,7 @@ services:
     container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped
     volumes:
-      - ./${CONTAINER_NAME}_data:/app/config
+      - ./${CONTAINER_NAME}_data:/app/config:z
     environment:
       TZ: ${TZ:-Europe/Moscow}
       TOKEN: ${TOKEN:-token}
@@ -24,7 +24,7 @@ services:
       file: ../gluetun/gluetun-compose-base.yaml
       service: gluetun
     volumes:
-      - ./${CONTAINER_NAME}_data/gluetun:/gluetun
+      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
     environment:
       HTTP_CONTROL_SERVER_ADDRESS: :8003
   #
@@ -36,7 +36,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data:/backup_data:ro
+      - ./${CONTAINER_NAME}_data:/backup_data:ro,z
     environment:
       BACKUP_CRON: "0 40 3 * * *"
   ## prune

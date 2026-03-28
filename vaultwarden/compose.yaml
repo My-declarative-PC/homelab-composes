@@ -16,7 +16,7 @@ services:
     ports:
       - 8282:80
     volumes:
-      - ./${CONTAINER_NAME}_data/config/:/data/
+      - ./${CONTAINER_NAME}_data/config/:/data/:z
     restart: unless-stopped
   # BeckUps
   ## main
@@ -25,7 +25,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro,z
     environment:
       BACKUP_CRON: 0 0 */6 * * *
   ## prune

@@ -1,6 +1,8 @@
 services:
   backup:
     image: mazzolino/restic
+    security_opt:
+      - label:type:container_runtime_t
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
@@ -33,13 +35,15 @@ services:
       RESTIC_BACKUP_SOURCES: /backup_data
 
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/backup_data:ro
-      - ./${CONTAINER_NAME}_data/backup_restore:/restore_data
-      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro,z
+      - ./${CONTAINER_NAME}_data/backup_restore:/restore_data:z
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic:z
+      - /var/run/docker.sock:/var/run/docker.sock:ro,z
 
   prune:
     image: mazzolino/restic
+    security_opt:
+      - label:type:container_runtime_t
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
@@ -56,10 +60,12 @@ services:
       RESTIC_PRUNE_ARGS: >
         --verbose
     volumes:
-      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic:z
 
   check:
     image: mazzolino/restic
+    security_opt:
+      - label:type:container_runtime_t
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
@@ -77,4 +83,4 @@ services:
         --read-data-subset=60%
         --verbose
     volumes:
-      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic
+      - /backup/ssd/restic/${CONTAINER_NAME}_backups:/mnt/restic:z
