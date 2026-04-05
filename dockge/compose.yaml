@@ -11,9 +11,9 @@ services:
     ports:
       - 5001:5001
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./${CONTAINER_NAME}_data/dockge:/app/data
-      - ${DOCKGE_STACKS_DIR:-/opt/stacks}:${DOCKGE_STACKS_DIR:-/opt/stacks}
+      - /var/run/docker.sock:/var/run/docker.sock:z
+      - ./${CONTAINER_NAME}_data/dockge:/app/data:Z
+      - ${DOCKGE_STACKS_DIR:-/opt/stacks}:${DOCKGE_STACKS_DIR:-/opt/stacks}:z
     labels:
       - autoheal-app=true
       # WatchTower
@@ -24,6 +24,8 @@ services:
       - homepage.icon=dockge-light.svg
       - homepage.href=http://dockge.home
       - homepage.description=Docker manager
+    security_opt:
+      - label:disable 
 #
 # NetWorks
 #

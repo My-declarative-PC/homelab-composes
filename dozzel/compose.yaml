@@ -11,7 +11,7 @@ services:
       DOZZLE_REMOTE_AGENT: ${CONTAINER_NAME}_agent:7007
       DOZZLE_DATA_DIR: /data
     volumes:
-      - ./${CONTAINER_NAME}_data:/data
+      - ./${CONTAINER_NAME}_data:/data:Z
     restart: unless-stopped
     ports:
       - 8765:8080
@@ -21,6 +21,8 @@ services:
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
+    security_opt:
+      - label:disable 
     container_name: ${CONTAINER_NAME}_agent
     healthcheck:
       test: ["CMD", "/dozzle", "healthcheck"]
@@ -34,7 +36,7 @@ services:
       DOZZLE_AGENT_NAME: ${AGENT_NAME}
       DOZZLE_AGENT_KEY: ${AGENT_KEY}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro,z
     ports:
       - 7007:7007
     restart: unless-stopped
