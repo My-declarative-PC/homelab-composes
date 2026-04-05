@@ -8,8 +8,8 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     volumes:
-      - ${UPLOAD_LOCATION}:/data
-      - /etc/localtime:/etc/localtime:ro
+      - ${UPLOAD_LOCATION}:/data:z
+      - /etc/localtime:/etc/localtime:ro,Z
     ports:
       - '2283:2283'
     depends_on:
@@ -26,7 +26,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_ml
     volumes:
-      - ./${CONTAINER_NAME}_data/cache:/cache
+      - ./${CONTAINER_NAME}_data/cache:/cache:Z
     env_file:
       - .env
     restart: unless-stopped
@@ -56,7 +56,7 @@ services:
       POSTGRES_INITDB_ARGS: '--data-checksums'
       DB_STORAGE_TYPE: 'HDD'
     volumes:
-      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data:z
     shm_size: 128mb
     restart: unless-stopped
   #
@@ -77,7 +77,7 @@ services:
         docker start ${CONTAINER_NAME}_main
         docker start ${CONTAINER_NAME}_db
     volumes:
-      - ${BASE_LOCATION}:/backup_data:ro
+      - ${BASE_LOCATION}:/backup_data:ro,z
   ## prune
   prune_restic__immich:
     extends:
