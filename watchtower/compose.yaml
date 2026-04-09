@@ -7,11 +7,13 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     environment:
       TZ: ${TZ:-Europe/Moscow}
-      WATCHTOWER_CLEANUP: ${WATCHTOWER_CLEANUP:-"true"}
-      WATCHTOWER_LABEL_ENABLE: ${WATCHTOWER_LABEL_ENABLE:-"true"}
-      WATCHTOWER_SCHEDULE: ${WATCHTOWER_SCHEDULE:-"0 0 4 * * */2"}
+      WATCHTOWER_CLEANUP: ${WATCHTOWER_CLEANUP:-true}
+      WATCHTOWER_LABEL_ENABLE: ${WATCHTOWER_LABEL_ENABLE:-true}
+      WATCHTOWER_SCHEDULE: ${WATCHTOWER_SCHEDULE:-0 0 4 * * */2}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:z
+    security_opt:
+      - label:type:container_runtime_t
     restart: unless-stopped
 #
 # NetWorks
