@@ -1,6 +1,6 @@
 services:
   3proxy:
-    image: mosajjal/3proxy:latest
+    image: 3proxy/3proxy:latest
     container_name: 3proxy
     restart: unless-stopped
     volumes:
@@ -23,7 +23,7 @@ services:
       file: ../restic/restic-compose-base.yaml
       service: backup
     volumes:
-      - ./${CONTAINER_NAME}_data/config:/backup_data:ro,z
+      - ./${CONTAINER_NAME}_data:/backup_data:ro,z
     environment:
       BACKUP_CRON: "0 38 3 * * *"
   ## prune
