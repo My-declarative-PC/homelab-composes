@@ -1,0 +1,48 @@
+services:
+  3proxy:
+    image: mosajjal/3proxy:latest
+    container_name: 3proxy
+    restart: unless-stopped
+    volumes:
+      - ./${CONTAINER_NAME}_data/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.tcp.routers.proxy.rule: "HostSNI(`proxy.${DOMAIN}`)"
+      traefik.tcp.routers.proxy.entrypoints: "websecure"
+      traefik.tcp.routers.proxy.tls: "true"
+      traefik.tcp.routers.proxy.tls.certresolver: "letsencrypt"
+      traefik.tcp.services.proxy.loadbalancer.server.port: "3128"
+  #
+  # BeckUps
+  #
+  ## main
+  backup_restic__audiobookshelf:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/config:/backup_data:ro,z
+    environment:
+      BACKUP_CRON: "0 38 3 * * *"
+  ## prune
+  prune_restic__audiobookshelf:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__audiobookshelf:
+    extends:
+      file: ../restic/restic-compose-base.yaml
+      service: check
+    environment:
+      CHECK_CRON: "0 30 5 * * *"
+#
+# NetWorks
+#
+networks:
+  traefik:
+    external: true
+  apprise_notification:
+    external: true
