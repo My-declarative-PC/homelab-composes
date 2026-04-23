@@ -5,20 +5,27 @@ services:
     labels:
       # watchtower
       com.centurylinklabs.watchtower.enable: true
-      # traefik
-      traefik.enable: "true"
-      traefik.tcp.routers.proxy.rule: "HostSNI(`proxy.${DOMAIN}`)"
-      traefik.tcp.routers.proxy.entrypoints: "websecure"
-      traefik.tcp.routers.proxy.tls: "true"
-      traefik.tcp.routers.proxy.tls.certresolver: "letsencrypt"
-      traefik.tcp.services.proxy.loadbalancer.server.port: "1080"
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Europe/Moscow}
+    ports:
+      - "1080:1080"
     volumes:
       - ./${CONTAINER_NAME}_data/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
-    networks:
-      traefik: {}
+  shadowsocks:
+    image: ghcr.io/shadowsocks/ssserver-rust:latest
+    container_name: ${CONTAINER_NAME}_shadow
+    labels:
+      # watchtower
+      com.centurylinklabs.watchtower.enable: true
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+    ports:
+      - "8388:8388/tcp"
+      - "8388:8388/udp"
+    volumes:
+      - ./${CONTAINER_NAME}_data/config.josn:/etc/shadowsocks-rust/config.json
   #
   # BeckUps
   #
@@ -48,6 +55,4 @@ services:
 #
 networks:
   apprise_notification: 
-    external: true
-  traefik:
     external: true
