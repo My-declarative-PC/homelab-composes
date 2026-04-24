@@ -1,7 +1,7 @@
 services:
   3proxy:
     image: 3proxy/3proxy:latest
-    container_name: ${CONTAINER_NAME}_main
+    container_name: ${CONTAINER_NAME}_proxy
     labels:
       # watchtower
       com.centurylinklabs.watchtower.enable: true
@@ -12,20 +12,28 @@ services:
       - "1080:1080"
     volumes:
       - ./${CONTAINER_NAME}_data/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
-  shadowsocks:
-    image: ghcr.io/shadowsocks/ssserver-rust:latest
-    container_name: ${CONTAINER_NAME}_shadow
+  mtproto:
+    image: telegrammessenger/proxy:latest
+    container_name: ${CONTAINER_NAME}_mtproto
     labels:
       # watchtower
       com.centurylinklabs.watchtower.enable: true
+      # traefik
+      traefik.enable: "true"
+      traefik.http.routers.mtproto-stats.rule: "Host(`mtproxy.${DOMAIN}`)"
+      traefik.http.routers.mtproto-stats.entrypoints: "websecure"
+      traefik.http.routers.mtproto-stats.tls.certresolver: "letsencrypt"
+      traefik.http.routers.mtproto-stats.middlewares: "auth@docker"
+      traefik.http.services.mtproto-stats.loadbalancer.server.port: "2398"
     restart: unless-stopped
     environment:
       TZ: ${TZ:-Europe/Moscow}
     ports:
-      - "8388:8388/tcp"
-      - "8388:8388/udp"
+      - "8443:443"
     volumes:
-      - ./${CONTAINER_NAME}_data/config.josn:/etc/shadowsocks-rust/config.json
+      - ./${CONTAINER_NAME}_data/mtproto:/data
+    networks:
+      - traefik
   #
   # BeckUps
   #
@@ -38,6 +46,8 @@ services:
       - ./${CONTAINER_NAME}_data:/backup_data:ro,z
     environment:
       BACKUP_CRON: "0 38 3 * * *"
+      PRE_COMMANDS: ""
+      POST_COMMANDS_SUCCESS: ""
   ## prune
   prune_restic_proxy:
     extends:
@@ -55,4 +65,6 @@ services:
 #
 networks:
   apprise_notification: 
+    external: true
+  traefik: 
     external: true
