@@ -10,6 +10,7 @@ services:
       TZ: ${TZ:-Europe/Moscow}
     ports:
       - "1080:1080"
+      - "3128:3128"
     volumes:
       - ./${CONTAINER_NAME}_data/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
   mtproto:
