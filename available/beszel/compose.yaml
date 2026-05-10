@@ -30,9 +30,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro,z
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
-      - /home/.beszel:/extra-filesystems/nvme0n1p2__home:ro
+      # - /home/.beszel:/extra-filesystems/nvme0n1p2__home:ro
       - /media/.beszel:/extra-filesystems/sda__media:ro
-      - /backup/hdd/.beszel:/extra-filesystems/sdb__hdd:ro
+      # - /backup/hdd/.beszel:/extra-filesystems/sdb__hdd:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
