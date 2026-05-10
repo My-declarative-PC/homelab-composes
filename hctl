@@ -6,12 +6,12 @@ set -l AVAILABLE "$ROOT/available"
 set -l ENABLED "$ROOT/enabled"
 
 function _list_available
-    fd -t d -d 1 . $AVAILABLE -x basename
+    find $AVAILABLE/ -maxdepth 2 -type d -exec basename {} \;
 end
 
 function _list_enabled
     if test -d $ENABLED
-        fd -t l -d 1 . $ENABLED -x basename
+        find $ENABLED/ -maxdepth 2 -type l -exec basename {} \;
     end
 end
 
