@@ -15,7 +15,7 @@ services:
       - ${TORRENTING_PORT:-6881}:${TORRENTING_PORT:-6881}/udp
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config:Z
-      - /media/downloads:/downloads:z
+      - /media/tor_downloads:/downloads:z
     restart: unless-stopped
     labels:
       - autoheal-app=true
@@ -38,7 +38,7 @@ services:
       TORRENTING_PORT: ${VPN_TORRENTING_PORT:-6882}
     volumes:
       - ./vpn_${CONTAINER_NAME}_data/config:/config:Z
-      - /media/downloads:/downloads:z
+      - /media/tor_downloads:/downloads:z
     restart: unless-stopped
     labels:
       - autoheal-app=true
