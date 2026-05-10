@@ -65,7 +65,7 @@ services:
   ## main
   backup_restic__immich:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: backup
     environment:
       BACKUP_CRON: "0 50 3 * * *"
@@ -81,12 +81,12 @@ services:
   ## prune
   prune_restic__immich:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: prune
   ## chekc
   check_restic__immich:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: check
     environment:
       CHECK_CRON: "0 35 5 * * *"

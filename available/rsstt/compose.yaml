@@ -21,7 +21,7 @@ services:
   #
   gluetun_rsstt:
     extends:
-      file: ../gluetun/gluetun-compose-base.yaml
+      file: ../../available/gluetun/gluetun-compose-base.yaml
       service: gluetun
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
@@ -33,7 +33,7 @@ services:
   ## main
   backup_restic__rsstt:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: backup
     volumes:
       - ./${CONTAINER_NAME}_data:/backup_data:ro,z
@@ -42,12 +42,12 @@ services:
   ## prune
   prune_restic__rsstt:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: prune
   ## chekc
   check_restic__rsstt:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: check
     environment:
       CHECK_CRON: "0 35 5 * * *"

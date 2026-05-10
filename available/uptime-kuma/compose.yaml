@@ -26,19 +26,19 @@ services:
   ## main
   backup_restic__uptime-kuma:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: backup
     volumes:
       - ./${CONTAINER_NAME}_data/config:/backup_data:ro
   ## prune
   prune_restic__uptime-kuma:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: prune
   ## chekc
   check_restic__uptime-kuma:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: check
 #
 # NetWorks

@@ -60,7 +60,7 @@ services:
   #
   gluetun_qtor:
     extends:
-      file: ../gluetun/gluetun-compose-base.yaml
+      file: ../../available/gluetun/gluetun-compose-base.yaml
       service: gluetun
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z

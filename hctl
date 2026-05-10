@@ -1,0 +1,109 @@
+#!/usr/bin/env fish
+# hctl — homelab control
+
+set -l ROOT (realpath (dirname (status filename)))
+set -l AVAILABLE "$ROOT/available"
+set -l ENABLED "$ROOT/enabled"
+
+function _list_available
+    fd -t d -d 1 . $AVAILABLE -x basename
+end
+
+function _list_enabled
+    if test -d $ENABLED
+        fd -t l -d 1 . $ENABLED -x basename
+    end
+end
+
+function _run_compose -a action -a name
+    gum style --foreground 212 "── $action $name ──"
+    pushd "$ENABLED/$name" >/dev/null
+    switch $action
+        case up
+            docker compose up -d --wait
+        case w-up watch-up
+            docker compose up
+        case '*'
+            docker compose $action
+    end
+    set -l rc $status
+    popd >/dev/null
+    return $rc
+end
+
+set -l cmd $argv[1]
+set -e argv[1]
+
+switch "$cmd"
+    case enable
+        if test (count $argv) -eq 0
+            set argv (_list_available | gum choose --no-limit --header "Что включить?")
+        end
+        for name in $argv
+            if not test -d "$AVAILABLE/$name"
+                gum style --foreground 196 "no such compose: $name"
+                continue
+            end
+            ln -sfn "$AVAILABLE/$name" "$ENABLED/$name"
+            gum style --foreground 46 "✓ enabled: $name"
+        end
+
+    case disable
+        if test (count $argv) -eq 0
+            set argv (_list_enabled | gum choose --no-limit --header "Что выключить?")
+        end
+        for name in $argv
+            rm -f "$ENABLED/$name"
+            gum style --foreground 214 "✓ disabled: $name"
+        end
+
+    case list ls
+        gum style --bold --foreground 51 "available:"
+        _list_available | while read name
+            if test -L "$ENABLED/$name"
+                printf "  %s %s\n" (gum style --foreground 46 "●") $name
+            else
+                printf "  %s %s\n" (gum style --foreground 240 "○") $name
+            end
+        end
+
+    case w-up watch-up
+        if test (count $argv) -eq 0
+            set argv (_list_enabled | gum choose --header "Какой смотреть?")
+            test -z "$argv"; and exit 0
+        else if test (count $argv) -ne 1
+            gum style --foreground 196 "w-up принимает ровно один compose"
+            exit 1
+        end
+        _run_compose w-up $argv[1]
+
+    case up down pull restart logs ps stop start
+        if test (count $argv) -eq 0
+            set argv (_list_enabled)
+        end
+        for name in $argv
+            _run_compose $cmd $name
+        end
+
+    case pick
+        set -l action (gum choose up w-up down restart pull logs ps --header "Действие:")
+        set -l targets (_list_enabled | gum choose --no-limit --header "На каких?")
+        if test "$action" = w-up; and test (count $targets) -ne 1
+            gum style --foreground 196 "w-up принимает ровно один compose"
+            exit 1
+        end
+        for name in $targets
+            _run_compose $action $name
+        end
+
+    case '*'
+        gum style --bold "hctl — homelab control"
+        echo
+        echo "  hctl enable [name...]   включить compose (без аргументов — меню)"
+        echo "  hctl disable [name...]  выключить"
+        echo "  hctl list               показать все с маркером ●/○"
+        echo "  hctl up [name...]       поднять (-d --wait)"
+        echo "  hctl w-up [name]        поднять в foreground со стримом логов"
+        echo "  hctl down|pull|restart|logs|ps [name...]"
+        echo "  hctl pick               интерактивно выбрать действие и compose"
+end

@@ -41,7 +41,7 @@ services:
   ## main
   backup_restic_proxy:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: backup
     volumes:
       - ./${CONTAINER_NAME}_data:/backup_data:ro,z
@@ -52,12 +52,12 @@ services:
   ## prune
   prune_restic_proxy:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: prune
   ## chekc
   check_restic_proxy:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: check
     environment:
       CHECK_CRON: "0 30 5 * * *"

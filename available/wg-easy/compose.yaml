@@ -48,19 +48,19 @@ services:
   ## main
   backup_restic__wg:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: backup
     volumes:
       - ./${CONTAINER_NAME}_data/wg:/backup_data:ro
   ## prune
   prune_restic__wg:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: prune
   ## chekc
   check_restic__wg:
     extends:
-      file: ../restic/restic-compose-base.yaml
+      file: ../../available/restic/restic-compose-base.yaml
       service: check
 #
 # NetWorks
