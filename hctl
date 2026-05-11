@@ -6,12 +6,12 @@ set AVAILABLE "$ROOT/available"
 set ENABLED "$ROOT/enabled"
 
 function _list_available
-    find $AVAILABLE/ -maxdepth 2 -type d -exec basename {} \;
+    find $AVAILABLE/ -maxdepth 1 -type d -exec basename {} \;
 end
 
 function _list_enabled
     if test -d $ENABLED
-        find $ENABLED/ -maxdepth 2 -type l -exec basename {} \;
+        find $ENABLED/ -maxdepth 1 -type l -exec basename {} \;
     end
 end
 
