@@ -23,6 +23,9 @@ function _run_compose -a action -a name
             docker compose up -d --wait
         case w-up watch-up
             docker compose up
+        case restart
+            docker compose down
+            and docker compose up -d --wait
         case '*'
             docker compose $action
     end
