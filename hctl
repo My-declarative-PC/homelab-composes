@@ -1,9 +1,9 @@
 #!/usr/bin/env fish
 # hctl — homelab control
 
-set -l ROOT (realpath (dirname (status filename)))
-set -l AVAILABLE "$ROOT/available"
-set -l ENABLED "$ROOT/enabled"
+set ROOT (realpath (dirname (status filename)))
+set AVAILABLE "$ROOT/available"
+set ENABLED "$ROOT/enabled"
 
 function _list_available
     find $AVAILABLE/ -maxdepth 2 -type d -exec basename {} \;
