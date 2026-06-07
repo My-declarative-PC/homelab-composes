@@ -1,7 +1,7 @@
 services:
-  gluetun:
+  gluetun-wg:
     image: qmcgaw/gluetun
-    container_name: ${CONTAINER_NAME}_vpn
+    container_name: ${CONTAINER_NAME}_vpn_wg
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
@@ -25,4 +25,48 @@ services:
       WIREGUARD_PRESHARED_KEY: ${WIREGUARD_PRESHARED_KEY}
       TZ: ${TZ:-Europe/Moscow}
       HTTP_CONTROL_SERVER_ADDRESS: :8001
+      DNS_UPSTREAM_RESOLVERS: "cloudflare"
+  gluetun-amnezia:
+    image: qmcgaw/gluetun
+    container_name: ${CONTAINER_NAME}_vpn_aza
+    labels:
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    security_opt:
+      - label:disable
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
+    environment:
+      VPN_SERVICE_PROVIDER: custom
+      VPN_TYPE: amneziawg
+      AMNEZIAWG_ENDPOINT_IP: ${AMNEZIAWG_ENDPOINT_IP}
+      AMNEZIAWG_ENDPOINT_PORT: ${AMNEZIAWG_ENDPOINT_PORT}
+      AMNEZIAWG_PUBLIC_KEY: ${AMNEZIAWG_PUBLIC_KEY}
+      AMNEZIAWG_PRIVATE_KEY: ${AMNEZIAWG_PRIVATE_KEY}
+      AMNEZIAWG_PRESHARED_KEY: ${AMNEZIAWG_PRESHARED_KEY}
+      AMNEZIAWG_ADDRESSES: ${AMNEZIAWG_ADDRESSES}
+      AMNEZIAWG_JC: ${AMNEZIAWG_JC}
+      AMNEZIAWG_JMIN: ${AMNEZIAWG_JMIN}
+      AMNEZIAWG_JMAX: ${AMNEZIAWG_JMAX}
+      AMNEZIAWG_MTU: ${AMNEZIAWG_MTU}
+      AMNEZIAWG_S1: ${AMNEZIAWG_S1}
+      AMNEZIAWG_S2: ${AMNEZIAWG_S2}
+      AMNEZIAWG_S3: ${AMNEZIAWG_S3}
+      AMNEZIAWG_S4: ${AMNEZIAWG_S4}
+      AMNEZIAWG_H1: ${AMNEZIAWG_H1}
+      AMNEZIAWG_H2: ${AMNEZIAWG_H2}
+      AMNEZIAWG_H3: ${AMNEZIAWG_H3}
+      AMNEZIAWG_H4: ${AMNEZIAWG_H4}
+      AMNEZIAWG_I1: ${AMNEZIAWG_I1}
+      AMNEZIAWG_I2: ${AMNEZIAWG_I2}
+      AMNEZIAWG_I3: ${AMNEZIAWG_I3}
+      AMNEZIAWG_I4: ${AMNEZIAWG_I4}
+      AMNEZIAWG_I5: ${AMNEZIAWG_I5}
+      TZ: ${TZ:-Europe/Moscow}
+      HTTP_CONTROL_SERVER_ADDRESS: :8801
       DNS_UPSTREAM_RESOLVERS: "cloudflare"

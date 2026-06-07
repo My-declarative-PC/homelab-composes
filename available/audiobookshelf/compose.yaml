@@ -24,7 +24,7 @@ services:
   gluetun_abs:
     extends:
       file: ../../available/gluetun/gluetun-compose-base.yaml
-      service: gluetun
+      service: gluetun-amnezia
     volumes:
       - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
     environment:
