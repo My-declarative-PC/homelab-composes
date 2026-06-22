@@ -23,11 +23,11 @@ services:
       SECUR_USER_GID: ${SECUR_USER_GID}
       SECUR_USER_UID: ${SECUR_USER_UID}
     volumes:
-      - ./config.yml:/data/config.yml
-      - ./${CONTAINER_NAME}_data:/data
-      - /media/smb/public:/samba/public
-      - /media/smb/share/${MAIN_USER}:/samba/${MAIN_USER}
-      - /media/smb/share/${SECUR_USER}:/samba/${SECUR_USER}
+      - ./config.yml:/data/config.yml:z
+      - ./${CONTAINER_NAME}_data:/data:z
+      - /media/smb/public:/samba/public:z
+      - /media/smb/share/${MAIN_USER}:/samba/${MAIN_USER}:z
+      - /media/smb/share/${SECUR_USER}:/samba/${SECUR_USER}:z
 #
 # NetWorks
 #
