@@ -1,7 +1,7 @@
 services:
   qbittorrent:
     runtime: runc
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:5.1.4
     container_name: ${CONTAINER_NAME}_main
     environment:
       PUID: ${PUID:-1000}
