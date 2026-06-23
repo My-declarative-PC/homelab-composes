@@ -9,31 +9,12 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=${TZ:-Europe/Moscow}
-      - "CLI_ARGS=--gameid devtest --port 30000"
+      - CLI_ARGS=--gameid mineclone2 --world /config/.minetest/worlds/voxelibre --port 30000
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config/.minetest:z
     restart: unless-stopped
     ports:
       - 30000:30000/udp
-    # network_mode: service:gluetun_luanti
-    # depends_on:
-    #   gluetun_luanti:
-    #     condition: service_healthy
-    #     restart: true
-  # #
-  # # VPN
-  # #
-  # gluetun_luanti:
-  #   extends:
-  #     file: ../../available/gluetun/gluetun-compose-base.yaml
-  #     service: gluetun-amnezia
-  #   volumes:
-  #     - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
-  #   environment:
-  #     HTTP_CONTROL_SERVER_ADDRESS: :8002
-  #     FIREWALL_VPN_INPUT_PORTS: 30000
-  #   ports:
-  #     - 30000:30000/udp
 #
 # NetWorks
 #
