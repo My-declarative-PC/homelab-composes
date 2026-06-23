@@ -6,16 +6,18 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     container_name: ${CONTAINER_NAME}_main
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${TZ:-Europe/Moscow}
-      - CLI_ARGS=--gameid mineclone2 --world /config/.minetest/worlds/voxelibre --port 30000
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "${TZ:-Europe/Moscow}"
+      CLI_ARGS: >-
+        --gameid mineclone2
+        --world /config/.minetest/worlds/voxelibre
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config/.minetest:z
     restart: unless-stopped
     ports:
-      - 30000:30000/udp
+      - "30000:30000/udp"
 #
-# NetWorks
+# Networks
 #
 networks: {}
