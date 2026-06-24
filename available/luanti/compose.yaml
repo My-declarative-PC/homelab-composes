@@ -1,5 +1,6 @@
 services:
   luanti:
+    runtime: runc
     image: lscr.io/linuxserver/luanti:latest
     labels:
       - autoheal-app=true
