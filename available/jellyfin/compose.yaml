@@ -14,9 +14,21 @@ services:
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config:z
       - /tmp/${CONTAINER_NAME}_cache:/cache:Z
-      - /media/jellyfin/Anime:/data/anime:Z
-      - /media/jellyfin/Films:/data/movies:Z
-      - /media/jellyfin/TV_Shows:/data/tvshows:Z
+      # cartoons
+      - /media/jellyfin/animated-movies:/data/animated-movies:Z
+      - /media/jellyfin/animated-series:/data/animated-series:Z
+      - /hdd_data/jellyfin/animated-movies:/hdd_data/animated-movies:Z
+      - /hdd_data/jellyfin/animated-series:/hdd_data/animated-series:Z
+      # anime
+      - /media/jellyfin/anime-movies:/data/anime-movies:Z
+      - /media/jellyfin/anime-series:/data/anime-series:Z
+      - /hdd_data/jellyfin/anime-movies:/hdd_data/anime-movies:Z
+      - /hdd_data/jellyfin/anime-series:/hdd_data/anime-series:Z
+      # adults
+      - /media/jellyfin/movies:/data/movies:Z
+      - /media/jellyfin/series:/data/series:Z
+      - /hdd_data/jellyfin/movies:/hdd_data/movies:Z
+      - /hdd_data/jellyfin/series:/hdd_data/series:Z
     restart: unless-stopped
     network_mode: service:gluetun_jelly
     healthcheck:
