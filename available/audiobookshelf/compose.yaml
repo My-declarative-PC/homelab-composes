@@ -7,8 +7,8 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     volumes:
-      - /media/jellyfin/Books/Audiobooks:/audiobooks:Z
-      - /media/jellyfin/Podcast:/podcasts:Z
+      - /hdd_data/audiobookshelf/audiobooks:/audiobooks:Z
+      - /hdd_data/audiobookshelf/podcast:/podcasts:Z
       - ./${CONTAINER_NAME}_data/config/config:/config:z
       - ./${CONTAINER_NAME}_data/config/metadata:/metadata:Z
     environment:
