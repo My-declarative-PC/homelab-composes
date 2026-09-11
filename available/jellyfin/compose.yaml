@@ -29,6 +29,9 @@ services:
       - /media/jellyfin/series:/data/series:Z
       - /hdd_data/jellyfin/movies:/hdd_data/movies:Z
       - /hdd_data/jellyfin/series:/hdd_data/series:Z
+      # music
+      - /media/jellyfin/music:/data/music:Z
+      - /hdd_data/jellyfin/music:/hdd_data/music:Z
     restart: unless-stopped
     network_mode: service:gluetun_jelly
     healthcheck:
