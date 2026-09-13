@@ -13,7 +13,7 @@ services:
       PGID: ${PGID:-1000}
     volumes:
       - ./${CONTAINER_NAME}_data/config:/config:z
-      - /tmp/${CONTAINER_NAME}_cache:/cache:Z
+      - ./${CONTAINER_NAME}_data/cache:/cache:Z
       # cartoons
       - /media/jellyfin/animated-movies:/data/animated-movies:Z
       - /media/jellyfin/animated-series:/data/animated-series:Z
@@ -32,6 +32,8 @@ services:
       # music
       - /media/jellyfin/music:/data/music:Z
       - /hdd_data/jellyfin/music:/hdd_data/music:Z
+    devices:
+      - /dev/dri:/dev/dri
     restart: unless-stopped
     network_mode: service:amneziawg_jelly
     healthcheck:
