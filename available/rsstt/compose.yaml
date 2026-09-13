@@ -11,22 +11,20 @@ services:
       TZ: ${TZ:-Europe/Moscow}
       TOKEN: ${TOKEN:-token}
       MANAGER: ${MANAGER:-manager}
-    network_mode: service:gluetun_rsstt
+    network_mode: service:amneziawg_rsstt
     depends_on:
-      gluetun_rsstt:
+      amneziawg_rsstt:
         condition: service_healthy
         restart: true
   #
   # VPN
   #
-  gluetun_rsstt:
+  amneziawg_rsstt:
     extends:
-      file: ../../available/gluetun/gluetun-compose-base.yaml
-      service: gluetun-amnezia
+      file: ../../available/amneziawg/amneziawg-compose-base.yaml
+      service: amneziawg-client
     volumes:
-      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
-    environment:
-      HTTP_CONTROL_SERVER_ADDRESS: :8003
+      - ./${CONTAINER_NAME}_data/amneziawg:/config:Z
   #
   # BeckUps
   #

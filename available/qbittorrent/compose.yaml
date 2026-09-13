@@ -28,6 +28,7 @@ services:
       - homepage.href=http://torrent.home
       - homepage.description=Torrent downloader
   qbittorrent_vpn:
+    runtime: runc
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: vpn_${CONTAINER_NAME}_main
     environment:
@@ -50,22 +51,24 @@ services:
       - homepage.icon=qbittorrent.svg
       - homepage.href=http://torrent.home
       - homepage.description=Torrent downloader over VPN
-    network_mode: service:gluetun_qtor
+    network_mode: service:amneziawg_qtor
     depends_on:
-      gluetun_qtor:
+      amneziawg_qtor:
         condition: service_healthy
         restart: true
   #
   # VPN
   #
-  gluetun_qtor:
+  amneziawg_qtor:
     extends:
-      file: ../../available/gluetun/gluetun-compose-base.yaml
-      service: gluetun-wg
+      file: ../../available/amneziawg/amneziawg-compose-base.yaml
+      service: amneziawg-client
     volumes:
-      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
-    environment:
-      HTTP_CONTROL_SERVER_ADDRESS: :8005
+      - ./${CONTAINER_NAME}_data/amneziawg:/config:Z
+    ports:
+      - ${VPN_WEBUI_PORT:-8081}:${VPN_WEBUI_PORT:-8081}
+      - ${VPN_TORRENTING_PORT:-6882}:${VPN_TORRENTING_PORT:-6882}
+      - ${VPN_TORRENTING_PORT:-6882}:${VPN_TORRENTING_PORT:-6882}/udp
 #
 # NetWorks
 #
