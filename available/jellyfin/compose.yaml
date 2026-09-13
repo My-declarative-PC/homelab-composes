@@ -33,27 +33,25 @@ services:
       - /media/jellyfin/music:/data/music:Z
       - /hdd_data/jellyfin/music:/hdd_data/music:Z
     restart: unless-stopped
-    network_mode: service:gluetun_jelly
+    network_mode: service:amneziawg_jelly
     healthcheck:
       test: curl --fail http://127.0.0.1:8096/health
       interval: 1m
       timeout: 90s
       retries: 3
     depends_on:
-      gluetun_jelly:
+      amneziawg_jelly:
         condition: service_healthy
         restart: true
   #
   # VPN
   #
-  gluetun_jelly:
+  amneziawg_jelly:
     extends:
-      file: ../../available/gluetun/gluetun-compose-base.yaml
-      service: gluetun-amnezia
+      file: ../../available/amneziawg/amneziawg-compose-base.yaml
+      service: amneziawg-client
     volumes:
-      - ./${CONTAINER_NAME}_data/gluetun:/gluetun:Z
-    environment:
-      HTTP_CONTROL_SERVER_ADDRESS: :8004
+      - ./${CONTAINER_NAME}_data/amneziawg:/config:Z
     ports:
       - 8096:8096
       - 8920:8920 #optional

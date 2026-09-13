@@ -1,0 +1,33 @@
+services:
+  amneziawg-client:
+    image: ghcr.io/ayastrebov/docker-amneziawg:latest
+    runtime: runc
+    container_name: ${CONTAINER_NAME}_vpn_aza
+    labels:
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    security_opt:
+      - label:disable
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv4.conf.all.src_valid_mark: 1
+    volumes:
+      - ./${CONTAINER_NAME}_data/amneziawg:/config:Z
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Europe/Moscow}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "ip link show wg0 >/dev/null && ping -I wg0 -c 1 -W 5 1.1.1.1 >/dev/null",
+        ]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
