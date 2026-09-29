@@ -39,6 +39,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro,z
   ## Agent
   beszel-agent:
+    runtime: runc
     image: henrygd/beszel-agent-intel
     container_name: ${CONTAINER_NAME}_lockal_agent
     labels:
