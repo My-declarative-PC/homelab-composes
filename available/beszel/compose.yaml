@@ -59,7 +59,7 @@ services:
       HUB_URL: ${HUB_URL}
       GPU_COLLECTOR: intel_gpu_top
       INTEL_GPU_DEVICE: drm:/dev/dri/card0
-      SMART_DEVICES: /dev/ht_1,/dev/ht_2,/dev/sh_1,/dev/sh_2,/dev/nvme,/dev/ssd
+      SMART_DEVICES: /dev/ht_1:sat,/dev/ht_2:sat,/dev/sg_1:sat,/dev/sg_2:sat,/dev/nvme:nvme,/dev/ssd:sat
       DOCKER_HOST: tcp://127.0.0.1:2375
       FILESYSTEM: /dev/nvme
     depends_on:
