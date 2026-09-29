@@ -43,22 +43,16 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
     network_mode: host
-    # Xe/Arc needs the host PID namespace for accurate GPU utilization.
-    pid: ${BESZEL_AGENT_PID_MODE:-private}
     volumes:
       - ./beszel_socket:/beszel_socket:z
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
-      # monitor other disks / partitions by mounting a folder in /extra-filesystems
-      # - /home/.beszel:/extra-filesystems/nvme0n1p2__home:ro
-      - /media/.beszel:/extra-filesystems/sda__media:ro
-      # - /backup/hdd/.beszel:/extra-filesystems/sdb__hdd:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
       KEY: ${KEY}
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
-      SMART_DEVICES: /dev/adata_su650,/dev/st1000dm003
+      SMART_DEVICES: /dev/ht_1,/dev/ht_2,/dev/sh_1,/dev/sh_2,/dev/nvme,/dev/ssd
       DOCKER_HOST: tcp://127.0.0.1:2375
     depends_on:
       - beszel-docker-socket-proxy
@@ -67,11 +61,16 @@ services:
       - SYS_ADMIN
       - CAP_PERFMON
     devices:
+      - /dev/disk/by-id/ata-Hitachi_HTS547575A9E384_J2140059CYT8EA:/dev/ht_1
+      - /dev/disk/by-id/ata-Hitachi_HTS547575A9E384_J2340059DG0AXA:/dev/ht_2
+      - /dev/disk/by-id/ata-ST9750420AS_6WS1Z4D0:/dev/sh_1
+      - /dev/disk/by-id/ata-ST9750420AS_6WS1ZZHS:/dev/sh_2
+      - /dev/disk/by-id/nvme-KBG30ZMV256G_TOSHIBA_78NPC02QP12P:/dev/nvme
+      - /dev/disk/by-id/ata-DGSR2001TP13T_55BD07571D4500611142:/dev/ssd
+      # GPU monitoring
       - /dev/dri:/dev/dri
-      - /dev/disk/by-id/ata-ADATA_SU650_2N342LQJG6TA:/dev/adata_su650
-      - /dev/disk/by-id/ata-ST1000DM003-1SB10C_Z9A261HD:/dev/st1000dm003
-      # ZFS monitoring also requires zpool/zfs tools in the image:
-      # - /dev/zfs:/dev/zfs
+      # ZFS monitoring
+      - /dev/zfs:/dev/zfs
   #
   # BeckUps
   #
