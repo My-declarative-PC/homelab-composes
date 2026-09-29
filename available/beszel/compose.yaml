@@ -49,13 +49,15 @@ services:
     volumes:
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
       # monitor other disks / partitions
-      - /media/.beszel:/extra-filesystems/ssd__media:ro
+      - /media/.beszel:/extra-filesystems/ssd__media:ro,z
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
       KEY: ${KEY}
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
+      GPU_COLLECTOR: intel_gpu_top
+      INTEL_GPU_DEVICE: drm:/dev/dri/card0
       SMART_DEVICES: /dev/ht_1,/dev/ht_2,/dev/sh_1,/dev/sh_2,/dev/nvme,/dev/ssd
       DOCKER_HOST: tcp://127.0.0.1:2375
       FILESYSTEM: /dev/nvme
