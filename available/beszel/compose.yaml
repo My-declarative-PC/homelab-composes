@@ -58,7 +58,7 @@ services:
       KEY: ${KEY}
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
-      SMART_DEVICES: ${SMART_DEVICES}
+      SMART_DEVICES: /dev/adata_su650,/dev/st1000dm003
       DOCKER_HOST: tcp://127.0.0.1:2375
     depends_on:
       - beszel-docker-socket-proxy
@@ -68,6 +68,8 @@ services:
       - CAP_PERFMON
     devices:
       - /dev/dri:/dev/dri
+      - /dev/disk/by-id/ata-ADATA_SU650_2N342LQJG6TA:/dev/adata_su650
+      - /dev/disk/by-id/ata-ST1000DM003-1SB10C_Z9A261HD:/dev/st1000dm003
   #
   # BeckUps
   #
