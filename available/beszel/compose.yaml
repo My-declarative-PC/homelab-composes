@@ -1,4 +1,5 @@
 services:
+  ## Hub
   beszel:
     image: henrygd/beszel:latest
     container_name: ${CONTAINER_NAME}_main
@@ -15,6 +16,7 @@ services:
     volumes:
       - ./beszel_socket:/beszel_socket:z
       - ./${CONTAINER_NAME}_data/config:/beszel_data:z
+  ## Proxy
   beszel-docker-socket-proxy:
     image: lscr.io/linuxserver/socket-proxy:latest
     container_name: ${CONTAINER_NAME}_docker_socket_proxy
@@ -35,6 +37,7 @@ services:
       EVENTS: "0"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro,z
+  ## Agent
   beszel-agent:
     image: henrygd/beszel-agent-intel
     container_name: ${CONTAINER_NAME}_lockal_agent
@@ -44,7 +47,6 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - ./beszel_agent_data:/var/lib/beszel-agent:z
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
       # monitor other disks / partitions
       - /media/.beszel:/extra-filesystems/ssd__media:ro
@@ -56,6 +58,7 @@ services:
       HUB_URL: ${HUB_URL}
       SMART_DEVICES: /dev/ht_1,/dev/ht_2,/dev/sh_1,/dev/sh_2,/dev/nvme,/dev/ssd
       DOCKER_HOST: tcp://127.0.0.1:2375
+      FILESYSTEM: /dev/nvme
     depends_on:
       - beszel-docker-socket-proxy
     cap_add:
