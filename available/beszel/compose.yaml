@@ -15,21 +15,38 @@ services:
     volumes:
       - ./beszel_socket:/beszel_socket:z
       - ./${CONTAINER_NAME}_data/config:/beszel_data:z
+  beszel-docker-socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: ${CONTAINER_NAME}_docker_socket_proxy
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    network_mode: bridge
+    read_only: true
+    tmpfs:
+      - /run
+    ports:
+      - "127.0.0.1:2375:2375"
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      CONTAINERS: "1"
+      ALLOW_LOGS: "1"
+      POST: "0"
+      EVENTS: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro,z
   beszel-agent:
     image: henrygd/beszel-agent-intel
     container_name: ${CONTAINER_NAME}_lockal_agent
     labels:
       - autoheal-app=true
       - com.centurylinklabs.watchtower.enable=true
-    security_opt:
-      - label:disable 
     restart: unless-stopped
     network_mode: host
     # Xe/Arc needs the host PID namespace for accurate GPU utilization.
     pid: ${BESZEL_AGENT_PID_MODE:-private}
     volumes:
       - ./beszel_socket:/beszel_socket:z
-      - /var/run/docker.sock:/var/run/docker.sock:ro,z
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
       # - /home/.beszel:/extra-filesystems/nvme0n1p2__home:ro
@@ -42,6 +59,9 @@ services:
       TOKEN: ${TOKEN}
       HUB_URL: ${HUB_URL}
       SMART_DEVICES: ${SMART_DEVICES}
+      DOCKER_HOST: tcp://127.0.0.1:2375
+    depends_on:
+      - beszel-docker-socket-proxy
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
