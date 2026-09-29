@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - ./beszel_socket:/beszel_socket:z
+      - ./beszel_agent_data:/var/lib/beszel-agent:z
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
       # monitor other disks / partitions
       - /media/.beszel:/extra-filesystems/ssd__media:ro
@@ -65,8 +65,8 @@ services:
     devices:
       - /dev/disk/by-id/ata-Hitachi_HTS547575A9E384_J2140059CYT8EA:/dev/ht_1
       - /dev/disk/by-id/ata-Hitachi_HTS547575A9E384_J2340059DG0AXA:/dev/ht_2
-      - /dev/disk/by-id/ata-ST9750420AS_6WS1Z4D0:/dev/sh_1
-      - /dev/disk/by-id/ata-ST9750420AS_6WS1ZZHS:/dev/sh_2
+      - /dev/disk/by-id/ata-ST9750420AS_6WS1Z4D0:/dev/sg_1
+      - /dev/disk/by-id/ata-ST9750420AS_6WS1ZZHS:/dev/sg_2
       - /dev/disk/by-id/nvme-KBG30ZMV256G_TOSHIBA_78NPC02QP12P:/dev/nvme
       - /dev/disk/by-id/ata-DGSR2001TP13T_55BD07571D4500611142:/dev/ssd
       # GPU monitoring
