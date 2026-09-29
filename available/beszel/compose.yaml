@@ -46,6 +46,8 @@ services:
     volumes:
       - ./beszel_socket:/beszel_socket:z
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
+      # monitor other disks / partitions
+      - /media/.beszel:/extra-filesystems/ssd__media:ro
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN}
