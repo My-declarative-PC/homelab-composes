@@ -22,7 +22,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro,z
   ## Agent
   beszel-agent:
-    image: henrygd/beszel-agent:latest
+    runtime: runc
+    image: henrygd/beszel-agent:alpine
     container_name: ${CONTAINER_NAME}_agent
     labels:
       - autoheal-app=true
@@ -31,6 +32,8 @@ services:
     network_mode: host
     volumes:
       - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
+    cap_add:
+      - SYS_RAWIO
     environment:
       TZ: ${TZ:-Europe/Moscow}
       LISTEN: ${LISTEN:-45876}
