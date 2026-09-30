@@ -1,0 +1,44 @@
+services:
+  ## Proxy
+  beszel-agent-docker-socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: ${CONTAINER_NAME}_docker_socket_proxy
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    network_mode: bridge
+    read_only: true
+    tmpfs:
+      - /run
+    ports:
+      - "127.0.0.1:2375:2375"
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      CONTAINERS: "1"
+      ALLOW_LOGS: "1"
+      POST: "0"
+      EVENTS: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro,z
+  ## Agent
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: ${CONTAINER_NAME}_agent
+    labels:
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./${CONTAINER_NAME}_data/agent:/var/lib/beszel-agent:Z
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      LISTEN: ${LISTEN:-45876}
+      DISABLE_SSH: "true"
+      KEY: ${KEY:?Set KEY in the local .env file}
+      TOKEN: ${TOKEN:?Set TOKEN in the local .env file}
+      HUB_URL: ${HUB_URL}
+      SYSTEM_NAME: ${SYSTEM_NAME}
+      DOCKER_HOST: tcp://127.0.0.1:2375
+    depends_on:
+      - beszel-agent-docker-socket-proxy
