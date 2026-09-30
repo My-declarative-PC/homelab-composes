@@ -1,0 +1,15 @@
+services:
+  beszel-agent:
+    # The Alpine variant includes smartctl for S.M.A.R.T. collection.
+    image: henrygd/beszel-agent:alpine
+    devices:
+      - /dev/disk/by-id/ata-ST1000DM003-1SB10C_Z9A261HD:/dev/workstation_hdd
+      - /dev/disk/by-id/ata-ADATA_SU650_2N342LQJG6TA:/dev/workstation_ssd
+      - /dev/mapper/cr_root:/dev/workstation_root
+    cap_add:
+      - SYS_RAWIO
+    environment:
+      FILESYSTEM: /dev/workstation_root
+      SMART_DEVICES: /dev/workstation_hdd:sat,/dev/workstation_ssd:sat
+    volumes:
+      - /home/.beszel:/extra-filesystems/dm-1__home:ro,z
