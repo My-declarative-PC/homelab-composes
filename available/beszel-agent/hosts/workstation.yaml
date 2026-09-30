@@ -4,7 +4,7 @@ services:
       - /dev/disk/by-id/ata-ST1000DM003-1SB10C_Z9A261HD:/dev/hdd
       - /dev/disk/by-id/ata-ADATA_SU650_2N342LQJG6TA:/dev/ssd
     environment:
-      FILESYSTEM: /dev/workstation_root
+      FILESYSTEM: /dev/ssd
       SMART_DEVICES: /dev/hdd:sat,/dev/ssd:sat
     volumes:
       - /home/.beszel:/extra-filesystems/dm-1__home:ro,z

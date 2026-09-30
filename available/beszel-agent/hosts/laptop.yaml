@@ -1,0 +1,10 @@
+services:
+  beszel-agent:
+    devices:
+      - /dev/disk/by-id/ata-Apacer_AS350_128GB_B7E0075B0C4600123504:/dev/root_disk
+      - /dev/disk/by-id/ata-MT-256_0014156000284:/dev/home_disk
+    environment:
+      FILESYSTEM: /dev/root_disk
+      SMART_DEVICES: /dev/root_disk:sat,/dev/home_disk:sat
+    volumes:
+      - /home/.beszel:/extra-filesystems/dm-1__home:ro,z
