@@ -45,6 +45,45 @@ services:
       amneziawg_jelly:
         condition: service_healthy
         restart: true
+  explo:
+    image: ghcr.io/lumepart/explo:latest
+    container_name: ${CONTAINER_NAME}_explo
+    labels:
+      - autoheal-app=true
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Europe/Moscow}
+      WEB_UI: ${WEB_UI:-true}
+      WIZARD_COMPLETE: ${WIZARD_COMPLETE:-true}
+      UI_USERNAME: ${UI_USERNAME}
+      UI_PASSWORD: ${UI_PASSWORD}
+      LISTENBRAINZ_USER: ${LISTENBRAINZ_USER}
+      LISTENBRAINZ_USER_TOKEN: ${LISTENBRAINZ_USER_TOKEN}
+      EXPLO_SYSTEM: ${EXPLO_SYSTEM:-jellyfin}
+      SYSTEM_URL: ${SYSTEM_URL:-http://127.0.0.1:8096}
+      SYSTEM_USERNAME: ${SYSTEM_USERNAME}
+      API_KEY: ${API_KEY}
+      LIBRARY_NAME: ${LIBRARY_NAME:-Music}
+      PUBLIC_PLAYLIST: ${PUBLIC_PLAYLIST:-false}
+      TRACK_MATCH_SCORE: ${TRACK_MATCH_SCORE:-60}
+      USE_SUBDIRECTORY: ${USE_SUBDIRECTORY:-false}
+      PATH_TEMPLATE: ${PATH_TEMPLATE}
+      DOWNLOAD_SERVICES: ${DOWNLOAD_SERVICES:-youtube}
+      TRACK_EXTENSION: ${TRACK_EXTENSION:-mp3}
+      EMBED_COVER_ART: ${EMBED_COVER_ART:-false}
+      SLEEP: ${SLEEP:-2}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./${CONTAINER_NAME}_data/config/explo:/opt/explo/config:Z
+      - /media/jellyfin/music/explo:/data:Z
+    restart: unless-stopped
+    network_mode: service:amneziawg_jelly
+    depends_on:
+      amneziawg_jelly:
+        condition: service_healthy
+        restart: true
   #
   # VPN
   #
@@ -59,6 +98,7 @@ services:
       - 8920:8920 #optional
       - 7359:7359/udp #optional
       - 1900:1900/udp #optional
+      - ${EXPLO_PORT:-7288}:7288
   #
   # BeckUps
   #
