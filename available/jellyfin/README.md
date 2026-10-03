@@ -5,6 +5,48 @@ Intel HD Graphics 620. Сервис `jellyfin` передаёт `/dev/dri` в к
 LinuxServer.io, в котором уже есть пользовательские драйверы Intel VA-API и
 QSV.
 
+## Настройка окружения
+
+Проект использует единственный локальный файл `.env`. Создайте его из
+`template.env` и заполните секреты и параметры сервисов:
+
+```bash
+cp -n template.env .env
+```
+
+`.env` игнорируется Git. В нём находятся настройки Jellyfin, AmneziaWG,
+Restic и Explo; не создавайте для Explo отдельный env-файл.
+
+## Explo
+
+Explo создаёт рекомендации ListenBrainz, загружает отсутствующие композиции и
+создаёт плейлисты в Jellyfin. Он использует сеть `amneziawg_jelly`, поэтому
+обращается к Jellyfin по `http://127.0.0.1:8096`, а его исходящие запросы идут
+через VPN. Web UI доступен по `http://<host>:${EXPLO_PORT}`.
+
+Перед запуском заполните в `.env` как минимум `UI_USERNAME`, `UI_PASSWORD`,
+`LISTENBRAINZ_USER`, `LISTENBRAINZ_USER_TOKEN`, `SYSTEM_USERNAME`, `API_KEY` и
+точное имя `LIBRARY_NAME`. API key создаётся в Jellyfin в
+**Dashboard > API Keys**. Пользователь из `SYSTEM_USERNAME` получает созданные
+плейлисты.
+
+Новые треки сохраняются в `/media/jellyfin/music/explo`, который уже входит в
+музыкальную библиотеку Jellyfin. Создайте его и каталог данных Explo с теми же
+числовыми UID/GID, что заданы в `.env`:
+
+```bash
+install -d -m 0755 -o 1000 -g 1000 jellyfin_data/config/explo
+sudo install -d -m 0755 -o 1000 -g 1000 /media/jellyfin/music/explo
+```
+
+Замените `1000` на значения `PUID` и `PGID`, если они отличаются. Настройки
+Explo изменяйте в едином `.env` и пересоздавайте контейнер; wizard отключён,
+чтобы конфигурация не сохранялась в отдельном env-файле.
+
+В **Dashboard > Libraries** Jellyfin включите real-time monitoring для
+музыкальной библиотеки. В загрузчиках метаданных альбомов и исполнителей
+включите MusicBrainz и поставьте его первым.
+
 Хост должен предоставлять драйвер ядра `i915` и `/dev/dri/renderD128`. Intel
 HD Graphics 620 поддерживает аппаратное кодирование и декодирование H.264 и
 HEVC, включая 10-битное декодирование HEVC. Аппаратное ускорение AV1 не
