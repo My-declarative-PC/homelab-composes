@@ -24,6 +24,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./${CONTAINER_NAME}_data/acme/:/acme/
   # 
   # BeckUps
   # 
@@ -44,7 +45,6 @@ services:
     extends:
       file: ../../available/restic/restic-compose-base.yaml
       service: check
-      - ./${CONTAINER_NAME}_data/acme/:/acme/
 #
 # NetWorks
 #
