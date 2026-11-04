@@ -26,7 +26,6 @@ services:
       net.ipv6.conf.all.forwarding: "1"
       net.ipv6.conf.default.forwarding: "1"
     networks:
-      - default
       - traefik
     labels:
       # Watchtower
@@ -47,9 +46,32 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+  #
+  # BeckUps
+  #
+  ## main
+  backup_restic__amnezia:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/amnezia:/backup_data:ro,z
+  ## prune
+  prune_restic__amnezia:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__amnezia:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: check
+#
+# NetWorks
+#
 networks:
   traefik:
     external: true
-    name: traefik
-
+  apprise_notification:
+    external: true
 
