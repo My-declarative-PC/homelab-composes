@@ -1,3 +1,4 @@
 .snapshots
 */*_data
 */.env*
+*/lab*.conf

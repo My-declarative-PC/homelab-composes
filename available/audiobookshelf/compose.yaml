@@ -23,7 +23,7 @@ services:
   #
   amneziawg_abs:
     extends:
-      file: ../../available/amneziawg/amneziawg-compose-base.yaml
+      file: ../../available/amneziawg-client/amneziawg-compose-base.yaml
       service: amneziawg-client
     volumes:
       - ./${CONTAINER_NAME}_data/amneziawg:/config:Z
