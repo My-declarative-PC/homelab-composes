@@ -1,2 +1,3 @@
 .env
-jellifin_data
+*_data
+lab*.conf
