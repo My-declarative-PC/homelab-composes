@@ -1,0 +1,77 @@
+services:
+  app:
+    image: myceliummesh/amneziawg-ui:latest
+    container_name: ${CONTAINER_NAME}_main
+    restart: unless-stopped
+    # VPN-порт — напрямую, в обход Traefik
+    ports:
+      - "54844:54844/udp"
+    environment:
+      WEB_UI_PORT: "54845"
+      WEB_UI_USER: ${WEB_UI_USER:?Set WEB_UI_USER in .env}
+      WEB_UI_PASSWORD: ${WEB_UI_PASSWORD_HASH:?Set WEB_UI_PASSWORD_HASH in .env}
+      WG_QUICK_USERSPACE_IMPLEMENTATION: "proxy"
+      AUTO_START_SERVERS: "true"
+      DEFAULT_PORT: "54844"
+    volumes:
+      - ./${CONTAINER_NAME}_data/amnezia:/etc/amnezia
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv4.ip_forward: "1"
+      net.ipv4.conf.all.src_valid_mark: "1"
+      net.ipv6.conf.all.disable_ipv6: "0"
+      net.ipv6.conf.all.forwarding: "1"
+      net.ipv6.conf.default.forwarding: "1"
+    networks:
+      - traefik
+    labels:
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: "true"
+      # Traefik
+      traefik.enable: "true"
+      traefik.docker.network: "traefik"
+      # HTTPS router
+      traefik.http.routers.amneziawg.rule: "Host(`amnezia-go.${DOMAIN}`)"
+      traefik.http.routers.amneziawg.entrypoints: "websecure"
+      traefik.http.routers.amneziawg.tls: "true"
+      traefik.http.routers.amneziawg.tls.certresolver: "letsencrypt"
+      # Backend — порт веб-панели
+      traefik.http.routers.amneziawg.service: "amneziawg"
+      traefik.http.services.amneziawg.loadbalancer.server.port: "54845"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  #
+  # BeckUps
+  #
+  ## main
+  backup_restic__amnezia:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: backup
+    volumes:
+      - ./${CONTAINER_NAME}_data/amnezia:/backup_data:ro,z
+  ## prune
+  prune_restic__amnezia:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: prune
+  ## chekc
+  check_restic__amnezia:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: check
+#
+# NetWorks
+#
+networks:
+  traefik:
+    external: true
+  apprise_notification:
+    external: true
+
