@@ -1,6 +1,8 @@
 """Проверки генератора без Docker и сетевых запросов."""
 
+import json
 from pathlib import Path
+import re
 import sys
 import unittest
 from urllib.parse import parse_qs, urlsplit
@@ -76,6 +78,19 @@ class ConfigurationTests(unittest.TestCase):
         ):
             with self.subTest(domain=domain), self.assertRaises(ValueError):
                 create_configuration(domain)
+
+    def test_documented_migration_settings_match_generator(self):
+        documentation = (Path(__file__).resolve().parents[1] / "README.md").read_text()
+        examples = re.findall(r"```json\n(.*?)\n\s*```", documentation, re.S)
+        server, client, _ = create_configuration("example.com")
+        streams = [
+            server["inbounds"][0]["streamSettings"],
+            client["outbounds"][0]["streamSettings"],
+        ]
+        self.assertEqual(len(examples), len(streams))
+        for example, expected in zip(examples, streams):
+            expected["xhttpSettings"]["path"] = "/api/ВАШ_ПУТЬ"
+            self.assertEqual(json.loads(example), expected)
 
 
 if __name__ == "__main__":

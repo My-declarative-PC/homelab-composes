@@ -2,9 +2,57 @@
 
 Клиент подключается к `xray.${DOMAIN}:443`, Traefik завершает TLS и передаёт XHTTP по h2c на внутренний порт Xray 8080. Порты Xray на хост не публикуются. REALITY больше не используется.
 
+```text
+Клиент → TLS, TCP/443 → Traefik → h2c, TCP/8080 → Xray → Интернет
+```
+
+Это VLESS + XHTTP с обычным сертификатом вашего домена, а не маскировка под сторонний REALITY target. Между Traefik и Xray TLS нет: используйте общую Docker-сеть только для доверенных контейнеров. Домен и IP сервера видны провайдеру; защиты от любой блокировки и полной незаметности схема не гарантирует.
+
+## Подготовка Traefik и DNS
+
+Используйте работающий стек `available/traefik`. В нём уже объявлены:
+
+- HTTPS entrypoint `websecure` на TCP/443;
+- resolver `letsencrypt` с DNS challenge Cloudflare;
+- Docker provider и внешняя сеть `traefik`.
+
+Менять статическую конфигурацию Traefik для Xray не требуется. DNS API token для выпуска сертификата настраивается в `.env` **Traefik**, в переменной `CLOUDFLARE_API_TOKEN`, а не в `.env` Xray. Он должен иметь права на DNS challenge нужной зоны. Серое облако не мешает выпуску сертификата через DNS challenge.
+
+Если ваш базовый домен — `example.com`, создайте DNS-запись:
+
+| Тип | Имя | Значение | Проксирование Cloudflare |
+|---|---|---|---|
+| A | `xray` | Публичный IPv4 сервера с Traefik | **DNS only, серое облако** |
+
+Не добавляйте AAAA, если IPv6 не настроен на этом сервере. Удалите или исправьте старую AAAA-запись: иначе часть клиентов будет обращаться не туда. TCP/443 должен быть доступен извне и опубликован **только Traefik**, а не Xray. Дополнительные порты для Xray в firewall открывать не нужно.
+
+Убедитесь, что общие сети существуют:
+
+```bash
+docker network inspect traefik
+docker network inspect apprise_notification
+```
+
+Если сеть отсутствует, создайте соответствующую командой `docker network create ИМЯ_СЕТИ`. Traefik должен быть подключён именно к сети `traefik`. Для уведомлений Restic нужен общий сервис Apprise.
+
+## Настройки .env
+
+| Переменная | Назначение |
+|---|---|
+| `CONTAINER_NAME` | Обязательное имя экземпляра, например `xray`; контейнер будет `xray_main` |
+| `DOMAIN` | Обязательный базовый домен, например `example.com`; публичное имя автоматически станет `xray.example.com` |
+| `RESTIC_PASSWORD` | Обязательный непустой пароль репозитория Restic; задайте случайный и сохраните отдельно |
+| `TZ` | Часовой пояс расписания Restic, по умолчанию `Europe/Moscow` |
+
+В `DOMAIN` не указывайте `https://`, порт, путь, завершающую точку и префикс `xray.`. Для IDN используйте ASCII/Punycode. Значение должно совпадать с вашей DNS-зоной; `example.com` в шаблоне нужно заменить.
+
+`setup.sh` получает параметры через `docker compose config`, не исполняя `.env` как shell-код. Переменные окружения имеют приоритет над `.env`; сохраняйте постоянные настройки в `.env`, чтобы генерация и последующий запуск использовали один домен и имя контейнера. Старые `TARGET_HOST`, `SERVER_IP` и `XRAY_PORT` больше не используются — удалите их при переходе.
+
+Изменение `.env` не переписывает существующий JSON. При смене `DOMAIN` необходимо согласованно изменить адрес, SNI и Host в клиентском JSON и ссылке. Имена router/service `xray` глобальны для Docker provider Traefik: этот шаблон рассчитан на один такой стек на экземпляр Traefik.
+
 ## Первая установка
 
-Нужны Docker Compose, Python 3 и работающий Traefik из `available/traefik` с entrypoint `websecure`, resolver `letsencrypt` и внешней сетью `traefik`. Для Restic нужна внешняя сеть `apprise_notification` и общий шаблон из репозитория.
+Нужны Docker Engine, Compose с поддержкой `config --format json`, Python 3 и клиент с поддержкой **VLESS + XHTTP + TLS**. Для генерации больше не нужны curl и внешний сервис определения IP. Сохраняйте структуру каталогов репозитория: Compose использует общий шаблон `available/restic/restic-compose-base.yaml`.
 
 1. Создайте DNS-запись `xray.ваш-домен` на IP сервера. В Cloudflare оставьте **DNS only — серое облако**. Если IPv6 не настроен, не добавляйте AAAA.
 2. Из `available/xray` выполните `cp template.env .env` и `chmod 600 .env`. Укажите базовый `DOMAIN` без `xray.` и задайте случайный `RESTIC_PASSWORD`.
@@ -19,24 +67,145 @@
 
 Генерируются `${CONTAINER_NAME}_data/config/config.json`, `${CONTAINER_NAME}_data/client/client.json` и `${CONTAINER_NAME}_data/client/import-link.txt`. Перенесите клиентский JSON на устройство с Xray или импортируйте ссылку в клиент с поддержкой XHTTP и TLS. Клиент проверяет сертификат; не включайте `allowInsecure`.
 
+`setup.sh` скачивает образ Xray и проверяет JSON одноразовым контейнером, но не запускает постоянные сервисы и не выпускает сертификат сам. После `docker compose up -d` выпуском и продлением сертификата занимается Traefik. Дождитесь успешного выпуска, прежде чем проверять подключение клиента.
+
+Клиент использует SNI и HTTP Host `xray.${DOMAIN}`, ALPN `h2,http/1.1` и режим XHTTP `packet-up` для совместимости с reverse proxy. Сервер принимает XHTTP в режиме `auto`; путь и UUID клиента совпадают с серверными. Не добавляйте buffering, переписывание пути, BasicAuth или обязательную авторизацию веб-панели к router Xray: это нарушит протокол. Клиентский UUID остаётся средством аутентификации VLESS.
+
+### Данные и безопасность
+
+Для `CONTAINER_NAME=xray` структура и права такие:
+
+```text
+xray_data/                    # 700
+├── config/                   # 755
+│   └── config.json           # 644, содержит UUID доступа
+└── client/                   # 700
+    ├── client.json           # 600, SOCKS5 на 127.0.0.1:10808
+    └── import-link.txt       # 600, ссылка vless://
+```
+
+Серверный JSON читает непривилегированный процесс контейнера через read-only bind mount; родительский каталог закрыт для других обычных пользователей хоста. Контейнер сохраняет ограничения `read_only`, `no-new-privileges`, `cap_drop: ALL` и временный `/tmp`. Отсутствующий JSON не заменяется автоматически каталогом.
+
+Не публикуйте JSON, ссылку и `.env`: в них данные доступа. Они исключены из Git. Повторная генерация останавливается при наличии любого из трёх файлов, включая повреждённую символьную ссылку. Если проверка Xray после генерации завершилась ошибкой, исправьте сохранённые файлы и повторите тест вручную — не удаляйте реквизиты ради повторного запуска `setup.sh`.
+
 ## Существующая установка
 
 **Старый REALITY JSON не подходит для нового Compose. Не запускайте новый стек со старой конфигурацией без её адаптации.** `setup.sh` не перезаписывает существующие файлы.
 
 Для сохранения доступа сначала сделайте защищённую копию данных и остановите старый Xray. В серверном JSON сохраните UUID и путь XHTTP, смените порт inbound на 8080, `streamSettings.security` на `none` и удалите `realitySettings`. В клиентском JSON укажите адрес `xray.${DOMAIN}`, порт 443, `security: tls`, `tlsSettings.serverName` с тем же доменом и включённую проверку сертификата; удалите `realitySettings`, сохраните UUID и путь. Поставьте клиенту режим XHTTP `packet-up` и обновите импорт-ссылку: `security=tls`, `sni=xray.${DOMAIN}`, `host=xray.${DOMAIN}`, без `pbk` и `sid`. Новую конфигурацию обязательно проверьте перед запуском.
 
+Рекомендуемый порядок:
+
+1. До обновления файлов остановите старый стек его прежней командой `docker compose down`. Это освободит опубликованный Xray порт; если старый Xray занимал 443, после остановки запустите Traefik. Сам Traefik при миграции останавливать не нужно.
+2. Сохраните защищённую копию всего каталога данных и `.env`. После обновления добавьте `DOMAIN`, оставьте прежние `CONTAINER_NAME` и `RESTIC_PASSWORD`. Не заменяйте существующий `.env` целиком шаблоном: это может потерять пароль резервных копий.
+3. Если данные ещё в старых `config/` и `client/`, перенесите их в `${CONTAINER_NAME}_data/`, только если там нет других данных. Не смешивайте разные установки. Для установки с именем `xray`:
+
+   ```bash
+   (
+     set -eu
+     DATA=xray_data
+     test -f config/config.json
+     test -d client
+     test ! -e "$DATA"
+     test ! -L "$DATA"
+     mkdir -m 700 "$DATA"
+     mv config client "$DATA/"
+     chmod 755 "$DATA/config"
+     chmod 644 "$DATA/config/config.json"
+     chmod 700 "$DATA/client"
+     chmod 600 "$DATA/client/client.json" "$DATA/client/import-link.txt"
+   )
+   ```
+
+   Если остался контейнер первоначальной установки `xray-private`, убедитесь, что это именно старый Xray, и остановите и удалите его отдельно (`docker stop xray-private`, затем `docker rm xray-private`).
+4. Вручную адаптируйте JSON по описанию выше. Пример серверного `streamSettings` (вместо `/api/ВАШ_ПУТЬ` сохраните исходный путь):
+
+   ```json
+   {
+     "network": "xhttp",
+     "security": "none",
+     "xhttpSettings": {"path": "/api/ВАШ_ПУТЬ", "mode": "auto"}
+   }
+   ```
+
+   Внешний порт клиента — **443**, внутренний порт серверного inbound — **8080**. В `settings.clients` и `settings.vnext[].users` сохраните исходный UUID.
+
+   Клиентский `streamSettings` для `DOMAIN=example.com`:
+
+   ```json
+   {
+     "network": "xhttp",
+     "security": "tls",
+     "tlsSettings": {
+       "serverName": "xray.example.com",
+       "fingerprint": "chrome",
+       "alpn": ["h2", "http/1.1"],
+       "allowInsecure": false
+     },
+     "xhttpSettings": {
+       "host": "xray.example.com",
+       "path": "/api/ВАШ_ПУТЬ",
+       "mode": "packet-up"
+     }
+   }
+   ```
+
+   В импорт-ссылке сохраните UUID и URL-кодированный исходный путь. Кроме `security=tls`, `sni` и `host`, укажите `type=xhttp`, `mode=packet-up`, `fp=chrome`, `alpn=h2%2Chttp%2F1.1`, `encryption=none`. Удалите REALITY-параметры `pbk`, `sid`, `spx`. Старые ключи REALITY для TLS не нужны; UUID и путь можно сохранить, но клиентские профили необходимо обновить.
+5. Выполните проверки из следующего раздела, затем `docker compose up -d`. Передавайте обновлённые клиентские файлы только защищённым способом. **Не запускайте `setup.sh` для миграции**: автоматического преобразования старых конфигураций нет.
+
 ## Проверки и обслуживание
 
 ```bash
+docker compose config --quiet
 docker compose run --rm --no-deps app run -test -c /etc/xray/config.json
 docker compose logs --tail=50 app
 ```
 
-Watchtower для Xray отключён. Ограничения контейнера, закрытый каталог данных и резервное копирование Restic сохранены. Restic останавливает `${CONTAINER_NAME}_main` на время копирования, разрывая активные подключения, и сохраняет весь каталог данных; `.env` и пароль храните отдельно.
+При `DOMAIN=example.com` проверьте DNS и сертификат (без отключения проверки сертификата):
 
-Тесты из корня репозитория (Docker CLI с Compose, без запуска контейнеров):
+```bash
+dig +short xray.example.com A
+dig +short xray.example.com AAAA
+curl -v --connect-timeout 10 https://xray.example.com/
+```
+
+Ответ `404` на `/` ожидаем: это не веб-панель и путь XHTTP другой. Успешная TLS-проверка и даже ответ HTTP не доказывают работу прокси. При ошибке сертификата смотрите логи **контейнера Traefik** и права DNS API token. `502` обычно означает проблему внутреннего порта 8080, h2c, конфигурации Xray или сети `traefik`. JSON-тест не проверяет DNS, сертификат и доставку трафика.
+
+На клиентском устройстве запустите Xray с `client.json`, затем:
+
+```bash
+curl --proxy socks5h://127.0.0.1:10808 https://ifconfig.me
+```
+
+В ответе должен быть внешний IP сервера Xray. Для временной диагностики измените серверный `log.loglevel` с `none` на `warning`, выполните `docker compose up -d --force-recreate app` и `docker compose logs --since=2m app`. После проверки верните `none`. Не публикуйте UUID и случайный путь в логах или скриншотах; access log Traefik, если его включить, может записывать путь XHTTP.
+
+Watchtower для Xray отключён: `latest` — изменяемый тег, возможны несовместимые изменения. Для ручного обновления после резервного копирования и проверки совместимости клиентов:
+
+```bash
+docker compose pull app
+docker compose run --rm --no-deps app run -test -c /etc/xray/config.json
+docker compose up -d app
+```
+
+## Резервное копирование
+
+Restic сохраняет весь `${CONTAINER_NAME}_data`, включая настройки клиентов. Репозиторий — `/backup/ssd/restic/${CONTAINER_NAME}_backups`, каталог восстановления — `${CONTAINER_NAME}_data/backup_restore`. `.env` и пароль храните отдельно. Сертификат находится у Traefik, не у Xray: резервное копирование его ACME-хранилища нужно проверить и настроить отдельно в стеке Traefik.
+
+**Restic останавливает `${CONTAINER_NAME}_main` на время копирования и разрывает активные подключения.** Копирование запланировано на 03:30, очистка на 04:00 и проверка на 05:15 по `TZ`; проверка также выполняется при запуске своего сервиса. Общий шаблон использует Docker socket с привилегированным доступом к Docker хоста. При восстановлении сначала остановите стек, восстановите данные и права доступа, проверьте JSON и лишь затем запускайте сервисы. Не запускайте генерацию поверх восстановленных данных.
+
+## Проверки разработки
+
+Тесты из корня репозитория (Docker CLI с Compose, без запуска контейнеров). Временные данные размещаются в `/tmp/opencode`; создайте этот каталог заранее, если его нет:
 
 ```bash
 bash -n available/xray/setup.sh
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s available/xray/tests -v
+git diff --check
 ```
+
+Compose разбирается настоящим Docker CLI; скачивание образа и тест Xray в этих тестах подменены. Отдельно проверяются TLS-настройки, импорт-ссылка, параметры Traefik, отсутствие опубликованного порта, права файлов и защита существующей конфигурации. Выпуск реального сертификата, сквозное подключение через ваш домен и восстановление Restic проверяйте на своём стенде.
+
+Документация:
+- https://xtls.github.io/en/config/transports/xhttp.html
+- https://github.com/XTLS/Xray-core/discussions/4113
+- https://doc.traefik.io/traefik/routing/services/#scheme

@@ -33,12 +33,12 @@ services:
       # Traefik
       traefik.enable: "true"
       traefik.docker.network: "traefik"
-      # HTTPS router
+      ## HTTPS router
       traefik.http.routers.amneziawg.rule: "Host(`amnezia-go.${DOMAIN}`)"
       traefik.http.routers.amneziawg.entrypoints: "websecure"
       traefik.http.routers.amneziawg.tls: "true"
       traefik.http.routers.amneziawg.tls.certresolver: "letsencrypt"
-      # Backend — порт веб-панели
+      ## Backend — порт веб-панели
       traefik.http.routers.amneziawg.service: "amneziawg"
       traefik.http.services.amneziawg.loadbalancer.server.port: "54845"
     logging:

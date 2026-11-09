@@ -2,7 +2,6 @@
 x-xray-setup:
   container_name: ${CONTAINER_NAME:?Set CONTAINER_NAME in .env}
   domain: ${DOMAIN:?Set DOMAIN in .env}
-
 services:
   app:
     image: ghcr.io/xtls/xray-core:latest
@@ -28,25 +27,30 @@ services:
     cap_drop:
       - ALL
     labels:
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: "true"
+      # Traefik
       traefik.enable: "true"
       traefik.docker.network: "traefik"
+      ## HTTPS router
       traefik.http.routers.xray.rule: "Host(`xray.${DOMAIN}`)"
       traefik.http.routers.xray.entrypoints: "websecure"
       traefik.http.routers.xray.tls: "true"
       traefik.http.routers.xray.tls.certresolver: "letsencrypt"
       traefik.http.routers.xray.service: "xray"
+      ## HTTPS сервисы
       traefik.http.services.xray.loadbalancer.server.port: "8080"
       traefik.http.services.xray.loadbalancer.server.scheme: "h2c"
       traefik.http.services.xray.loadbalancer.responseforwarding.flushinterval: "-1ms"
-      # Обновления XHTTP требуют проверки совместимости клиентов
-      com.centurylinklabs.watchtower.enable: "false"
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-
-  # Резервное копирование останавливает ${CONTAINER_NAME}_main на время снимка.
+  #
+  # BeckUps
+  #
+  ## main
   backup_restic__xray:
     extends:
       file: ../../available/restic/restic-compose-base.yaml
@@ -55,21 +59,23 @@ services:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
     volumes:
       - ./${CONTAINER_NAME}_data:/backup_data:ro,z
-
+  ## prune
   prune_restic__xray:
     extends:
       file: ../../available/restic/restic-compose-base.yaml
       service: prune
     environment:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
-
+  ## chekc
   check_restic__xray:
     extends:
       file: ../../available/restic/restic-compose-base.yaml
       service: check
     environment:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
-
+#
+# NetWorks
+#
 networks:
   traefik:
     external: true
