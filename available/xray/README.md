@@ -32,13 +32,13 @@ SERVER_IP=203.0.113.10 ./setup.sh
 ## Проверки
 
 ```bash
-docker compose run --rm --no-deps xray run -test -c /etc/xray/config.json
-docker compose logs --tail=50 xray
+docker compose run --rm --no-deps app run -test -c /etc/xray/config.json
+docker compose logs --tail=50 app
 sudo ss -lntp | grep ':443'
 curl -Iv --connect-timeout 10 https://www.bing.com/
 ```
 
-Для сетевой диагностики временно измените `config/config.json` -> `log.loglevel` с `none` на `warning`, затем `docker compose up -d --force-recreate` и `docker compose logs --since=2m xray`. Не публикуйте исходный `config/config.json` и импорт-ссылку — в них находятся секреты подключения. Возвращайте `none` после тестирования.
+Для сетевой диагностики временно измените `config/config.json` -> `log.loglevel` с `none` на `warning`, затем `docker compose up -d --force-recreate` и `docker compose logs --since=2m app`. Не публикуйте исходный `config/config.json` и импорт-ссылку — в них находятся секреты подключения. Возвращайте `none` после тестирования.
 
 Для проверки клиентского JSON на устройстве с установленным Xray запустите Xray с этим файлом и проверьте SOCKS5-прокси:
 

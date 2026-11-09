@@ -1,0 +1,32 @@
+services:
+  app:
+    image: ghcr.io/xtls/xray-core:latest
+    container_name: xray-private
+    restart: unless-stopped
+    command: ["run", "-c", "/etc/xray/config.json"]
+    ports:
+      - "443:443/tcp"
+    volumes:
+      - type: bind
+        source: ./config/config.json
+        target: /etc/xray/config.json
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    labels:
+      # REALITY принимает подключения напрямую, без HTTP-маршрутизации
+      traefik.enable: "false"
+      # Обновления XHTTP/REALITY требуют проверки совместимости клиентов
+      com.centurylinklabs.watchtower.enable: "false"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

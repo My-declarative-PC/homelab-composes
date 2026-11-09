@@ -7,17 +7,20 @@ TARGET_HOST="${TARGET_HOST:-www.bing.com}"
 SERVER_IP="${SERVER_IP:-}"
 
 for app in docker python3 curl; do
-  command -v "$app" >/dev/null || { echo "Необходима команда: $app" >&2; exit 1; }
+	command -v "$app" >/dev/null || {
+		echo "Необходима команда: $app" >&2
+		exit 1
+	}
 done
 if [[ -e config/config.json ]]; then
-  echo 'config/config.json уже существует. Во избежание потери существующих ключей генерация остановлена.' >&2
-  exit 1
+	echo 'config/config.json уже существует. Во избежание потери существующих ключей генерация остановлена.' >&2
+	exit 1
 fi
 if [[ -z "$SERVER_IP" ]]; then
-  SERVER_IP="$(curl -4fsS --connect-timeout 5 --max-time 10 https://api.ipify.org)" || {
-    echo 'Не удалось определить внешний IPv4. Запустите: SERVER_IP=ваш_публичный_IP ./setup.sh' >&2
-    exit 1
-  }
+	SERVER_IP="$(curl -4fsS --connect-timeout 5 --max-time 10 https://api.ipify.org)" || {
+		echo 'Не удалось определить внешний IPv4. Запустите: SERVER_IP=ваш_публичный_IP ./setup.sh' >&2
+		exit 1
+	}
 fi
 
 docker pull "$IMAGE"
@@ -84,5 +87,5 @@ print('REALITY target:',host)
 print('Создано: config/config.json, client/client.json, client/import-link.txt')
 PY
 
-docker compose run --rm --no-deps xray run -test -c /etc/xray/config.json
+docker compose run --rm --no-deps app run -test -c /etc/xray/config.json
 echo 'Проверка конфигурации пройдена. Запуск: docker compose up -d'
