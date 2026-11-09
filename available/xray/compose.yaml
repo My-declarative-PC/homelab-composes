@@ -1,9 +1,7 @@
 # Эти параметры читает setup.sh из результата docker compose config.
 x-xray-setup:
   container_name: ${CONTAINER_NAME:?Set CONTAINER_NAME in .env}
-  port: "${XRAY_PORT:-443}"
-  target_host: ${TARGET_HOST:-www.bing.com}
-  server_ip: "${SERVER_IP:-}"
+  domain: ${DOMAIN:?Set DOMAIN in .env}
 
 services:
   app:
@@ -11,8 +9,10 @@ services:
     container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped
     command: ["run", "-c", "/etc/xray/config.json"]
-    ports:
-      - "${XRAY_PORT:-443}:443/tcp"
+    expose:
+      - "8080"
+    networks:
+      - traefik
     volumes:
       - type: bind
         source: ./${CONTAINER_NAME}_data/config/config.json
@@ -28,9 +28,17 @@ services:
     cap_drop:
       - ALL
     labels:
-      # REALITY принимает подключения напрямую, без HTTP-маршрутизации
-      traefik.enable: "false"
-      # Обновления XHTTP/REALITY требуют проверки совместимости клиентов
+      traefik.enable: "true"
+      traefik.docker.network: "traefik"
+      traefik.http.routers.xray.rule: "Host(`xray.${DOMAIN}`)"
+      traefik.http.routers.xray.entrypoints: "websecure"
+      traefik.http.routers.xray.tls: "true"
+      traefik.http.routers.xray.tls.certresolver: "letsencrypt"
+      traefik.http.routers.xray.service: "xray"
+      traefik.http.services.xray.loadbalancer.server.port: "8080"
+      traefik.http.services.xray.loadbalancer.server.scheme: "h2c"
+      traefik.http.services.xray.loadbalancer.responseforwarding.flushinterval: "-1ms"
+      # Обновления XHTTP требуют проверки совместимости клиентов
       com.centurylinklabs.watchtower.enable: "false"
     logging:
       driver: json-file
@@ -63,5 +71,7 @@ services:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
 
 networks:
+  traefik:
+    external: true
   apprise_notification:
     external: true
