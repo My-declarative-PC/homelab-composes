@@ -3,10 +3,12 @@
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import stat
 import subprocess
 import tempfile
+import textwrap
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
@@ -321,6 +323,33 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.write_env(RESTIC_PASSWORD="")
         self.run_setup(success=False)
         self.assertFalse(self.calls.exists())
+
+    def test_documented_migration_preserves_files(self):
+        self.run_setup()
+        data = self.work / "xray_data"
+        original = {
+            str(path.relative_to(data)): path.read_bytes()
+            for path in data.rglob("*")
+            if path.is_file()
+        }
+        for name in ("config", "client"):
+            (data / name).rename(self.work / name)
+        data.rmdir()
+        match = re.search(
+            r"```bash\n(   \(\n.*?\n   \))\n   ```",
+            (SOURCE / "README.md").read_text(),
+            re.S,
+        )
+        self.assertIsNotNone(match, "Не найден документированный блок миграции")
+        script = textwrap.dedent(match.group(1))
+        subprocess.run(["bash", "-c", script], cwd=self.work, env=self.env, check=True)
+        for relative, content in original.items():
+            self.assertEqual((data / relative).read_bytes(), content)
+        self.assertEqual(stat.S_IMODE(data.stat().st_mode), 0o700)
+        repeated = subprocess.run(["bash", "-c", script], cwd=self.work, env=self.env)
+        self.assertNotEqual(repeated.returncode, 0)
+        for relative, content in original.items():
+            self.assertEqual((data / relative).read_bytes(), content)
 
 
 if __name__ == "__main__":
