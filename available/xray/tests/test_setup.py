@@ -61,6 +61,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
                 "XRAY_PORT",
                 "TARGET_HOST",
                 "SERVER_IP",
+                "RESTIC_PASSWORD",
                 "COMPOSE_FILE",
                 "COMPOSE_ENV_FILES",
                 "COMPOSE_PROJECT_NAME",
@@ -80,6 +81,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             XRAY_PORT="443",
             TARGET_HOST="www.bing.com",
             SERVER_IP="203.0.113.10",
+            RESTIC_PASSWORD="test-only-password",
         )
         settings.update(overrides)
         (self.work / ".env").write_text(
@@ -190,7 +192,9 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         )
 
     def test_defaults_and_required_container_name(self):
-        (self.work / ".env").write_text("CONTAINER_NAME=xray\n")
+        (self.work / ".env").write_text(
+            "CONTAINER_NAME=xray\nRESTIC_PASSWORD=test-only-password\n"
+        )
         self.run_setup()
         client = self.read_json("xray_data/client/client.json")
         self.assertEqual(client["outbounds"][0]["settings"]["vnext"][0]["port"], 443)
@@ -274,6 +278,49 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
     def test_failed_config_test_does_not_report_success(self):
         result = self.run_setup(success=False, MOCK_TEST_EXIT="1")
         self.assertNotIn("Проверка конфигурации пройдена", result.stdout)
+
+    def test_restic_configuration(self):
+        result = subprocess.run(
+            [DOCKER, "compose", "config", "--format", "json"],
+            cwd=self.work,
+            env=self.env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        config = json.loads(result.stdout)
+        services = config["services"]
+        backup = services["backup_restic__xray"]
+        sources = [
+            volume for volume in backup["volumes"] if volume["target"] == "/backup_data"
+        ]
+        self.assertEqual(len(sources), 1)
+        self.assertEqual(sources[0]["source"], str(self.work / "xray_data"))
+        self.assertTrue(sources[0]["read_only"])
+        self.assertEqual(
+            backup["environment"]["PRE_COMMANDS"].strip(), "docker stop xray_main"
+        )
+        self.assertEqual(
+            backup["environment"]["POST_COMMANDS_EXIT"].strip(),
+            "docker start xray_main",
+        )
+        for name in ("backup_restic__xray", "prune_restic__xray", "check_restic__xray"):
+            service = services[name]
+            self.assertEqual(
+                service["environment"]["RESTIC_PASSWORD"], "test-only-password"
+            )
+            repositories = [
+                v["source"] for v in service["volumes"] if v["target"] == "/mnt/restic"
+            ]
+            self.assertEqual(repositories, ["/backup/ssd/restic/xray_backups"])
+        self.assertIn("apprise_notification", backup["networks"])
+        self.assertTrue(config["networks"]["apprise_notification"]["external"])
+        self.assertNotIn("traefik", services["app"]["networks"])
+
+    def test_restic_password_is_required(self):
+        self.write_env(RESTIC_PASSWORD="")
+        self.run_setup(success=False)
+        self.assertFalse(self.calls.exists())
 
 
 if __name__ == "__main__":

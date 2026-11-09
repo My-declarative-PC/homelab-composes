@@ -37,3 +37,31 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  # Резервное копирование останавливает ${CONTAINER_NAME}_main на время снимка.
+  backup_restic__xray:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: backup
+    environment:
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
+    volumes:
+      - ./${CONTAINER_NAME}_data:/backup_data:ro,z
+
+  prune_restic__xray:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: prune
+    environment:
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
+
+  check_restic__xray:
+    extends:
+      file: ../../available/restic/restic-compose-base.yaml
+      service: check
+    environment:
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
+
+networks:
+  apprise_notification:
+    external: true
