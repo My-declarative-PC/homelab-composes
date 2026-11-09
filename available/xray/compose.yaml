@@ -1,14 +1,21 @@
+# Эти параметры читает setup.sh из результата docker compose config.
+x-xray-setup:
+  container_name: ${CONTAINER_NAME:?Set CONTAINER_NAME in .env}
+  port: "${XRAY_PORT:-443}"
+  target_host: ${TARGET_HOST:-www.bing.com}
+  server_ip: "${SERVER_IP:-}"
+
 services:
   app:
     image: ghcr.io/xtls/xray-core:latest
-    container_name: xray-private
+    container_name: ${CONTAINER_NAME}_main
     restart: unless-stopped
     command: ["run", "-c", "/etc/xray/config.json"]
     ports:
-      - "443:443/tcp"
+      - "${XRAY_PORT:-443}:443/tcp"
     volumes:
       - type: bind
-        source: ./config/config.json
+        source: ./${CONTAINER_NAME}_data/config/config.json
         target: /etc/xray/config.json
         read_only: true
         bind:
