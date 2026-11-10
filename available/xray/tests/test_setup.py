@@ -29,6 +29,8 @@ class SetupTests(unittest.TestCase):
         self.work.mkdir(parents=True)
         for name in ("setup.sh", "compose.yaml", "configuration.py"):
             shutil.copy2(SOURCE / name, self.work / name)
+        for name in ("nginx", "site"):
+            shutil.copytree(SOURCE / name, self.work / name)
         shutil.copytree(SOURCE.parent / "restic", root / "available/restic")
         self.bin = root / "bin"
         self.bin.mkdir()
@@ -163,6 +165,12 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.assertNotIn("ports", app)
         self.assertEqual(
             app["labels"]["traefik.http.routers.xray.rule"],
+            "Host(`xray.override.example`) && PathPrefix(`/api/`)",
+        )
+        site = json.loads(config.stdout)["services"]["site"]
+        self.assertEqual(site["container_name"], "override_site")
+        self.assertEqual(
+            site["labels"]["traefik.http.routers.xray-site.rule"],
             "Host(`xray.override.example`)",
         )
         self.assertEqual(
@@ -335,6 +343,72 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.assertTrue(app["read_only"])
         self.assertIn("ALL", app["cap_drop"])
         self.assertFalse(app["volumes"][0]["bind"]["create_host_path"])
+
+    def test_site_and_proxy_have_independent_routes_and_read_only_mounts(self):
+        result = subprocess.run(
+            [DOCKER, "compose", "config", "--format", "json"],
+            cwd=self.work,
+            env=self.env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        services = json.loads(result.stdout)["services"]
+        app, site = services["app"], services["site"]
+        proxy_labels, site_labels = app["labels"], site["labels"]
+        self.assertEqual(
+            proxy_labels["traefik.http.routers.xray.rule"],
+            "Host(`xray.example.com`) && PathPrefix(`/api/`)",
+        )
+        self.assertEqual(
+            site_labels["traefik.http.routers.xray-site.rule"],
+            "Host(`xray.example.com`)",
+        )
+        self.assertGreater(
+            int(proxy_labels["traefik.http.routers.xray.priority"]),
+            int(site_labels["traefik.http.routers.xray-site.priority"]),
+        )
+        for name, service in (("xray", app), ("xray-site", site)):
+            with self.subTest(service=name):
+                labels = service["labels"]
+                router = "traefik.http.routers." + name
+                self.assertEqual(labels[router + ".entrypoints"], "websecure")
+                self.assertEqual(labels[router + ".tls"], "true")
+                self.assertEqual(labels[router + ".tls.certresolver"], "letsencrypt")
+                self.assertEqual(labels[router + ".service"], name)
+                self.assertNotIn(router + ".middlewares", labels)
+                self.assertNotIn("ports", service)
+                self.assertNotIn("depends_on", service)
+                self.assertTrue(service["read_only"])
+                self.assertIn("ALL", service["cap_drop"])
+                self.assertIn("no-new-privileges:true", service["security_opt"])
+                self.assertIn("/tmp:size=16m,mode=1777", service["tmpfs"])
+                self.assertEqual(set(service["networks"]), {"traefik"})
+                self.assertEqual(labels["traefik.docker.network"], "traefik")
+        self.assertEqual(site["expose"], ["8080"])
+        self.assertEqual(site["entrypoint"], ["nginx"])
+        self.assertEqual(site["command"], ["-g", "daemon off;"])
+        self.assertEqual(
+            site_labels["traefik.http.services.xray-site.loadbalancer.server.port"],
+            "8080",
+        )
+        self.assertEqual(
+            site_labels["traefik.http.services.xray-site.loadbalancer.server.scheme"],
+            "http",
+        )
+        self.assertEqual(site_labels["com.centurylinklabs.watchtower.enable"], "false")
+        mounts = {volume["target"]: volume for volume in site["volumes"]}
+        expected = {
+            "/etc/nginx/conf.d/default.conf": "nginx/default.conf",
+            "/usr/share/nginx/html": "site",
+        }
+        self.assertEqual(set(mounts), set(expected))
+        for target, source in expected.items():
+            volume = mounts[target]
+            self.assertEqual(volume["source"], str(self.work / source))
+            self.assertTrue(volume["read_only"])
+            self.assertFalse(volume["bind"]["create_host_path"])
+            self.assertTrue(Path(volume["source"]).exists())
 
     def test_documented_legacy_directory_move_preserves_files(self):
         self.run_setup()
