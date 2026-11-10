@@ -1,39 +1,41 @@
-# Эти параметры читает setup.sh из результата docker compose config.
-x-xray-setup:
-  container_name: ${CONTAINER_NAME:?Set CONTAINER_NAME in .env}
-  domain: ${DOMAIN:?Set DOMAIN in .env}
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   app:
-    image: ghcr.io/xtls/xray-core:latest
-    container_name: ${CONTAINER_NAME}_main
+    image: ghcr.io/mhsanaei/3x-ui:v3.11.0
+    container_name: ${CONTAINER_NAME:?Set CONTAINER_NAME in .env}_main
     restart: unless-stopped
-    command: ["run", "-c", "/etc/xray/config.json"]
+    stop_grace_period: 30s
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      XUI_ENABLE_FAIL2BAN: "false"
+      XUI_PORT: "2053"
+    # В контейнере панель слушает 0.0.0.0; на хосте доступна только через loopback.
+    ports:
+      - "127.0.0.1:2053:2053"
     expose:
       - "8080"
     networks:
       - traefik
     volumes:
-      - type: bind
-        source: ./${CONTAINER_NAME}_data/config/config.json
-        target: /etc/xray/config.json
-        read_only: true
-        bind:
-          create_host_path: false
-    read_only: true
-    tmpfs:
-      - /tmp:size=16m,mode=1777
+      - ./${CONTAINER_NAME}_data/db:/etc/x-ui
+    # /app/bin/config.json генерируется самой панелью из SQLite, не монтируется.
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
     labels:
       # Watchtower
-      com.centurylinklabs.watchtower.enable: "true"
+      com.centurylinklabs.watchtower.enable: "false"
       # Traefik
       traefik.enable: "true"
       traefik.docker.network: "traefik"
       ## HTTPS router
-      traefik.http.routers.xray.rule: "Host(`xray.${DOMAIN}`) && PathPrefix(`/api/`)"
+      traefik.http.routers.xray.rule: "Host(`xray.${DOMAIN:?Set DOMAIN in .env}`) && PathPrefix(`/api/`)"
       traefik.http.routers.xray.priority: "100"
       traefik.http.routers.xray.entrypoints: "websecure"
       traefik.http.routers.xray.tls: "true"
@@ -43,11 +45,7 @@ services:
       traefik.http.services.xray.loadbalancer.server.port: "8080"
       traefik.http.services.xray.loadbalancer.server.scheme: "h2c"
       traefik.http.services.xray.loadbalancer.responseforwarding.flushinterval: "-1ms"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *logging
   site:
     image: nginxinc/nginx-unprivileged:1.28.0-alpine
     container_name: ${CONTAINER_NAME}_site
@@ -91,32 +89,44 @@ services:
       traefik.http.routers.xray-site.service: "xray-site"
       traefik.http.services.xray-site.loadbalancer.server.port: "8080"
       traefik.http.services.xray-site.loadbalancer.server.scheme: "http"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *logging
   #
   # BeckUps
   #
   ## main
   backup_restic__xray:
+    logging: *logging
     extends:
       file: ../../available/restic/restic-compose-base.yaml
       service: backup
     environment:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
+      # Не начинать копирование SQLite, если остановить панель не удалось.
+      PRE_COMMANDS: |-
+        set -e
+        docker stop --time 30 ${CONTAINER_NAME}_main
+        docker inspect -f '{{.State.Running}}' ${CONTAINER_NAME}_main | grep -qx false
+      RESTIC_BACKUP_ARGS: >-
+        --tag docker-${CONTAINER_NAME}
+        --skip-if-unchanged
+        --exclude /backup_data/backup_restore
+        --verbose
+    depends_on:
+      app:
+        condition: service_started
     volumes:
       - ./${CONTAINER_NAME}_data:/backup_data:ro,z
   ## prune
   prune_restic__xray:
+    logging: *logging
     extends:
       file: ../../available/restic/restic-compose-base.yaml
       service: prune
     environment:
       RESTIC_PASSWORD: ${RESTIC_PASSWORD:?Set RESTIC_PASSWORD in .env}
-  ## chekc
+  ## check
   check_restic__xray:
+    logging: *logging
     extends:
       file: ../../available/restic/restic-compose-base.yaml
       service: check
