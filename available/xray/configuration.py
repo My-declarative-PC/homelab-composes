@@ -94,7 +94,7 @@ def create_configuration(domain):
                     "security": "tls",
                     "tlsSettings": {
                         "serverName": host,
-                        "fingerprint": "chrome",
+                        "fingerprint": "firefox",
                         "alpn": ["h2", "http/1.1"],
                         "allowInsecure": False,
                     },
@@ -109,7 +109,7 @@ def create_configuration(domain):
             "encryption": "none",
             "security": "tls",
             "sni": host,
-            "fp": "chrome",
+            "fp": "firefox",
             "alpn": "h2,http/1.1",
             "type": "xhttp",
             "host": host,

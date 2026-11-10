@@ -138,7 +138,7 @@ xray_data/                    # 700
      "security": "tls",
      "tlsSettings": {
        "serverName": "xray.example.com",
-       "fingerprint": "chrome",
+       "fingerprint": "firefox",
        "alpn": ["h2", "http/1.1"],
        "allowInsecure": false
      },
@@ -150,7 +150,7 @@ xray_data/                    # 700
    }
    ```
 
-   В импорт-ссылке сохраните UUID и URL-кодированный исходный путь. Кроме `security=tls`, `sni` и `host`, укажите `type=xhttp`, `mode=packet-up`, `fp=chrome`, `alpn=h2%2Chttp%2F1.1`, `encryption=none`. Удалите REALITY-параметры `pbk`, `sid`, `spx`. Старые ключи REALITY для TLS не нужны; UUID и путь можно сохранить, но клиентские профили необходимо обновить.
+   В импорт-ссылке сохраните UUID и URL-кодированный исходный путь. Кроме `security=tls`, `sni` и `host`, укажите `type=xhttp`, `mode=packet-up`, `fp=firefox`, `alpn=h2%2Chttp%2F1.1`, `encryption=none`. Удалите REALITY-параметры `pbk`, `sid`, `spx`. Старые ключи REALITY для TLS не нужны; UUID и путь можно сохранить, но клиентские профили необходимо обновить.
 5. Выполните проверки из следующего раздела, затем `docker compose up -d`. Передавайте обновлённые клиентские файлы только защищённым способом. **Не запускайте `setup.sh` для миграции**: автоматического преобразования старых конфигураций нет.
 
 ## Проверки и обслуживание

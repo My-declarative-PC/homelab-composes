@@ -28,6 +28,7 @@ class ConfigurationTests(unittest.TestCase):
         stream = outbound["streamSettings"]
         self.assertEqual(stream["security"], "tls")
         self.assertFalse(stream["tlsSettings"]["allowInsecure"])
+        self.assertEqual(stream["tlsSettings"]["fingerprint"], "firefox")
         self.assertEqual(stream["tlsSettings"]["serverName"], target["address"])
         path = inbound["streamSettings"]["xhttpSettings"]["path"]
         self.assertRegex(path, r"^/api/[0-9a-f]{24}$")
@@ -39,6 +40,7 @@ class ConfigurationTests(unittest.TestCase):
         query = parse_qs(parsed.query)
         for key, value in (
             ("security", "tls"),
+            ("fp", "firefox"),
             ("type", "xhttp"),
             ("sni", target["address"]),
             ("host", target["address"]),
