@@ -3,6 +3,7 @@
 import fcntl
 import json
 import os
+import secrets
 import stat
 from contextlib import contextmanager
 
@@ -54,6 +55,50 @@ def exists(parent, name):
     except FileNotFoundError:
         return False
     return True
+
+
+def read_json(parent, name):
+    """Прочитать обычный JSON-файл, не следуя по ссылкам."""
+    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+    with os.fdopen(fd, "r", encoding="utf-8") as file:
+        if not stat.S_ISREG(os.fstat(file.fileno()).st_mode):
+            raise RuntimeError("Ожидался обычный файл данных Xray")
+        try:
+            return json.load(file)
+        except (ValueError, UnicodeError) as error:
+            raise ValueError("Некорректный JSON в данных Xray") from error
+
+
+def write_json(parent, name, value, mode=0o600, replace=False):
+    """Записать JSON целиком; замена атомарна и запрещена для ссылок."""
+    if exists(parent, name):
+        info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        if not stat.S_ISREG(info.st_mode):
+            raise RuntimeError("Файл данных Xray должен быть обычным файлом")
+        if not replace:
+            raise FileExistsError("Файл данных Xray уже существует")
+    temporary = ".xray-" + secrets.token_hex(12)
+    fd = os.open(
+        temporary,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+        0o600,
+        dir_fd=parent,
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as file:
+            json.dump(value, file, indent=2)
+            file.write("\n")
+            file.flush()
+            os.fchmod(file.fileno(), mode)
+            os.fsync(file.fileno())
+        if replace:
+            os.replace(temporary, name, src_dir_fd=parent, dst_dir_fd=parent)
+        else:
+            os.link(temporary, name, src_dir_fd=parent, dst_dir_fd=parent)
+        os.fsync(parent)
+    finally:
+        if exists(parent, temporary):
+            os.unlink(temporary, dir_fd=parent)
 
 
 def check_new_configuration(parent, data_name):

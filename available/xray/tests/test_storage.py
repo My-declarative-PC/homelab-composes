@@ -6,10 +6,35 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.storage import check_new_configuration, locked_root, write_configuration
+from src.storage import (
+    check_new_configuration,
+    locked_root,
+    read_json,
+    write_configuration,
+    write_json,
+)
 
 
 class StorageTests(unittest.TestCase):
+    def test_atomic_json_update_and_exclusive_creation(self):
+        with locked_root(self.root) as parent:
+            write_json(parent, "state.json", {"old": True})
+            with self.assertRaises(FileExistsError):
+                write_json(parent, "state.json", {})
+            self.assertEqual(read_json(parent, "state.json"), {"old": True})
+            write_json(parent, "state.json", {"new": True}, replace=True)
+            self.assertEqual(read_json(parent, "state.json"), {"new": True})
+        self.assertEqual((self.root / "state.json").stat().st_mode & 0o777, 0o600)
+        self.assertEqual(list(self.root.glob(".xray-*")), [])
+
+    def test_json_operations_reject_symlinks(self):
+        (self.root / "state.json").symlink_to("missing")
+        with locked_root(self.root) as parent:
+            with self.assertRaises(OSError):
+                read_json(parent, "state.json")
+            with self.assertRaises(RuntimeError):
+                write_json(parent, "state.json", {}, replace=True)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(
             prefix="xray-storage-", dir="/tmp/opencode"

@@ -4,7 +4,7 @@ import ipaddress
 import re
 import secrets
 import uuid
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 BACKEND_PORT = 8080
 
@@ -30,10 +30,9 @@ def server_name(domain):
     return "xray." + domain
 
 
-def create_configuration(domain):
-    """Создать новые реквизиты; существующие файлы эта функция не изменяет."""
-    host = server_name(domain)
-    uid = str(uuid.uuid4())
+def create_server_configuration(domain):
+    """Создать сервер без пользователей с новым общим XHTTP-путём."""
+    server_name(domain)
     path = "/api/" + secrets.token_hex(12)
     server = {
         "log": {"loglevel": "none"},
@@ -42,7 +41,7 @@ def create_configuration(domain):
                 "listen": "0.0.0.0",
                 "port": BACKEND_PORT,
                 "protocol": "vless",
-                "settings": {"clients": [{"id": uid}], "decryption": "none"},
+                "settings": {"clients": [], "decryption": "none"},
                 "streamSettings": {
                     "network": "xhttp",
                     "security": "none",
@@ -64,6 +63,12 @@ def create_configuration(domain):
             ]
         },
     }
+    return server
+
+
+def create_client_configuration(domain, uid, path, name="Xray-XHTTP-TLS"):
+    """Построить профиль из существующих реквизитов, без генерации новых."""
+    host = server_name(domain)
     client = {
         "log": {"loglevel": "warning"},
         "inbounds": [
@@ -116,5 +121,17 @@ def create_configuration(domain):
             "path": path,
         }
     )
-    uri = f"vless://{uid}@{host}:443?{query}#Xray-XHTTP-TLS"
+    uri = f"vless://{uid}@{host}:443?{query}#{quote(name, safe='')}"
+    return client, uri
+
+
+def create_configuration(domain):
+    """Совместимый генератор прежнего комплекта с одним пользователем."""
+    server = create_server_configuration(domain)
+    uid = str(uuid.uuid4())
+    inbound = server["inbounds"][0]
+    inbound["settings"]["clients"] = [{"id": uid}]
+    client, uri = create_client_configuration(
+        domain, uid, inbound["streamSettings"]["xhttpSettings"]["path"]
+    )
     return server, client, uri

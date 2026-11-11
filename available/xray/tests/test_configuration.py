@@ -7,10 +7,32 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.configuration import BACKEND_PORT, create_configuration, server_name
+from src.configuration import (
+    BACKEND_PORT,
+    create_client_configuration,
+    create_configuration,
+    create_server_configuration,
+    server_name,
+)
 
 
 class ConfigurationTests(unittest.TestCase):
+    def test_server_generation_does_not_create_users(self):
+        server = create_server_configuration("example.com")
+        self.assertEqual(server["inbounds"][0]["settings"]["clients"], [])
+
+    def test_client_generation_preserves_supplied_credentials(self):
+        uid = str(uuid.uuid4())
+        client, uri = create_client_configuration(
+            "example.com", uid, "/api/test", "phone"
+        )
+        self.assertEqual(urlsplit(uri).username, uid)
+        self.assertEqual(urlsplit(uri).fragment, "phone")
+        self.assertEqual(
+            client["outbounds"][0]["streamSettings"]["xhttpSettings"]["path"],
+            "/api/test",
+        )
+
     def test_tls_client_matches_internal_xhttp_server(self):
         server, client, uri = create_configuration("example.com")
         inbound = server["inbounds"][0]
