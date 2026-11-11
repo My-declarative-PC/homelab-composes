@@ -354,7 +354,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             labels["traefik.http.routers.xray.tls.certresolver"], "letsencrypt"
         )
         self.assertEqual(labels["traefik.docker.network"], "traefik")
-        self.assertEqual(labels["com.centurylinklabs.watchtower.enable"], "false")
+        self.assertEqual(labels["com.centurylinklabs.watchtower.enable"], "true")
         self.assertTrue(config["networks"]["traefik"]["external"])
         self.assertTrue(app["read_only"])
         self.assertIn("ALL", app["cap_drop"])
