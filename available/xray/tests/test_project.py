@@ -26,7 +26,6 @@ class ProjectTests(unittest.TestCase):
                 None,
                 "setup",
                 "check",
-                "migrate-layout",
             ):
                 with self.subTest(command=command):
                     args = [sys.executable, "-B", str(ROOT / "xray.py")]

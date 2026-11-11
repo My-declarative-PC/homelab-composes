@@ -28,7 +28,7 @@ class StorageTests(unittest.TestCase):
             pass
 
     def test_symlink_directories_are_rejected_without_touching_target(self):
-        for relative in ("config", "xray_data", "xray_data/config", "xray_data/client"):
+        for relative in ("xray_data", "xray_data/config", "xray_data/client"):
             with (
                 self.subTest(relative=relative),
                 tempfile.TemporaryDirectory(

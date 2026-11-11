@@ -57,12 +57,6 @@ def exists(parent, name):
 
 
 def check_new_configuration(parent, data_name):
-    if exists(parent, "config"):
-        with directory(parent, "config") as legacy:
-            if exists(legacy, "config.json"):
-                raise RuntimeError(
-                    "Найден старый config/config.json; переход с REALITY описан в README"
-                )
     if not exists(parent, data_name):
         return
     with directory(parent, data_name) as data:
@@ -72,8 +66,7 @@ def check_new_configuration(parent, data_name):
                 with directory(data, folder) as target:
                     if exists(target, name):
                         raise RuntimeError(
-                            "Конфигурация уже существует; переход с REALITY описан в README. "
-                            "Реквизиты не изменены"
+                            "Конфигурация уже существует. Реквизиты не изменены"
                         )
 
 

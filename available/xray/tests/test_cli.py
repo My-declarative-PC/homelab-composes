@@ -78,12 +78,11 @@ class CliTests(unittest.TestCase):
         self.assertEqual(self.compose.run.call_count, 1)
         self.assertNotIn("пройдены", self.out.getvalue())
 
-    @patch("src.cli.migrate_layout")
-    def test_migration_uses_compose_settings_without_starting_containers(self, migrate):
-        self.compose.config.return_value["x-xray-setup"]["container_name"] = "custom"
-        self.assertEqual(self.run_cli("migrate-layout"), 0)
-        migrate.assert_called_once_with(self.root, "custom_data")
-        self.compose.run.assert_not_called()
+    def test_removed_migration_command_is_rejected_before_docker(self):
+        with self.assertRaises(SystemExit) as raised:
+            self.run_cli("migrate-layout")
+        self.assertEqual(raised.exception.code, 2)
+        self.compose_class.assert_not_called()
 
     def test_invalid_arguments_never_call_docker(self):
         for args in (

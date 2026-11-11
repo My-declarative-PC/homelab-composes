@@ -6,7 +6,6 @@ import sys
 
 from .compose import Compose, DockerError
 from .configuration import create_configuration, server_name
-from .migration import migrate_layout
 from .storage import check_new_configuration, locked_root, write_configuration
 
 
@@ -75,10 +74,6 @@ def main(root, argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("setup", help="Создать и проверить новую конфигурацию")
     commands.add_parser("check", help="Проверить Compose, Xray и Nginx без генерации")
-    commands.add_parser(
-        "migrate-layout",
-        help="Перенести старые config/ и client/ без преобразования JSON",
-    )
     args = parser.parse_args(argv)
     try:
         compose = Compose(root)
@@ -86,12 +81,6 @@ def main(root, argv=None):
             setup(root, compose)
         elif args.command == "check":
             check(compose)
-        elif args.command == "migrate-layout":
-            name, _ = settings_from_config(compose.config())
-            migrate_layout(root, name + "_data")
-            print(
-                "Каталоги перенесены; содержимое файлов не изменено. Адаптируйте REALITY вручную по README"
-            )
     except DockerError as error:
         print("Ошибка:", error, file=sys.stderr)
         return error.returncode if 0 < error.returncode < 126 else 1

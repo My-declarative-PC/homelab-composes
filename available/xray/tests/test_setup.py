@@ -213,9 +213,8 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.assertEqual(path.read_bytes(), original)
         self.assertFalse(self.calls.exists())
 
-    def test_existing_files_and_legacy_config_block_generation(self):
+    def test_existing_files_block_generation(self):
         for relative in (
-            "config/config.json",
             "xray_data/config/config.json",
             "xray_data/client/client.json",
             "xray_data/client/import-link.txt",
@@ -320,25 +319,14 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.run_setup(success=False)
         self.assertFalse(self.calls.exists())
 
-    def test_existing_reality_config_requires_explicit_migration(self):
+    def test_existing_configuration_error_does_not_expose_content(self):
         path = self.work / "xray_data/config/config.json"
         path.parent.mkdir(parents=True)
-        original = json.dumps(
-            {
-                "inbounds": [
-                    {
-                        "streamSettings": {
-                            "security": "reality",
-                            "realitySettings": {"privateKey": "old-private-key"},
-                        }
-                    }
-                ]
-            }
-        )
+        original = json.dumps({"sensitive": "existing-secret"})
         path.write_text(original)
         result = self.run_setup(success=False)
-        self.assertIn("переход с REALITY", result.stderr)
-        self.assertNotIn("old-private-key", result.stderr)
+        self.assertIn("Реквизиты не изменены", result.stderr)
+        self.assertNotIn("existing-secret", result.stderr)
         self.assertEqual(path.read_text(), original)
         self.assertFalse(self.calls.exists())
 
@@ -442,31 +430,6 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             self.assertTrue(volume["read_only"])
             self.assertFalse(volume["bind"]["create_host_path"])
             self.assertTrue(Path(volume["source"]).exists())
-
-    def test_documented_legacy_directory_move_preserves_files(self):
-        self.run_setup()
-        data = self.work / "xray_data"
-        original = {
-            str(path.relative_to(data)): path.read_bytes()
-            for path in data.rglob("*")
-            if path.is_file()
-        }
-        for name in ("config", "client"):
-            (data / name).rename(self.work / name)
-        data.rmdir()
-        command = [sys.executable, str(self.work / "xray.py"), "migrate-layout"]
-        subprocess.run(
-            command, cwd=self.work, env=self.env, check=True, capture_output=True
-        )
-        for relative, content in original.items():
-            self.assertEqual((data / relative).read_bytes(), content)
-        self.assertEqual(stat.S_IMODE(data.stat().st_mode), 0o700)
-        repeated = subprocess.run(
-            command, cwd=self.work, env=self.env, capture_output=True, check=False
-        )
-        self.assertNotEqual(repeated.returncode, 0)
-        for relative, content in original.items():
-            self.assertEqual((data / relative).read_bytes(), content)
 
 
 if __name__ == "__main__":
