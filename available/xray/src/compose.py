@@ -20,9 +20,9 @@ class Compose:
         if self.docker is None:
             raise DockerError("Необходима команда: docker")
 
-    def docker_run(self, *args):
+    def docker_run(self, *args, stream=False):
         result = subprocess.run(
-            [self.docker, *args], cwd=self.root, capture_output=True, text=True
+            [self.docker, *args], cwd=self.root, capture_output=not stream, text=True
         )
         if result.returncode:
             # Вывод Compose может содержать .env, UUID или случайный путь.
@@ -32,8 +32,8 @@ class Compose:
             )
         return result.stdout
 
-    def run(self, *args):
-        return self.docker_run("compose", *args)
+    def run(self, *args, stream=False):
+        return self.docker_run("compose", *args, stream=stream)
 
     def config(self):
         try:
