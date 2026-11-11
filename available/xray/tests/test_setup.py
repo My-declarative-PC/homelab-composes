@@ -7,6 +7,7 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import textwrap
 import unittest
@@ -27,7 +28,7 @@ class SetupTests(unittest.TestCase):
         root = Path(self.temp.name)
         self.work = root / "available/xray"
         self.work.mkdir(parents=True)
-        for name in ("setup.sh", "compose.yaml"):
+        for name in ("xray.py", "compose.yaml"):
             shutil.copy2(SOURCE / name, self.work / name)
         for name in ("src", "nginx", "site"):
             shutil.copytree(SOURCE / name, self.work / name)
@@ -44,7 +45,7 @@ if args[:2] == ['compose', 'config']:
 with open(os.environ['DOCKER_CALLS'], 'a') as file:
     file.write(json.dumps(args) + '\\n')
 if args[:1] == ['pull']:
-    sys.exit(0)
+    sys.exit(int(os.environ.get('MOCK_PULL_EXIT', '0')))
 if args == ['compose', 'run', '--rm', '--no-deps', 'app', 'run', '-test', '-c', '/etc/xray/config.json']:
     sys.exit(int(os.environ.get('MOCK_TEST_EXIT', '0')))
 sys.exit('Неожиданная команда Docker: ' + repr(args))
@@ -84,7 +85,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
 
     def run_setup(self, success=True, **env):
         result = subprocess.run(
-            ["bash", "setup.sh"],
+            [sys.executable, str(self.work / "xray.py"), "setup"],
             cwd=self.work,
             env={**self.env, **env},
             capture_output=True,
@@ -243,6 +244,23 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
     def test_failed_config_test_does_not_report_success(self):
         result = self.run_setup(success=False, MOCK_TEST_EXIT="1")
         self.assertNotIn("Проверка конфигурации пройдена", result.stdout)
+        self.assertTrue((self.work / "xray_data/client/import-link.txt").is_file())
+
+    def test_failed_pull_does_not_create_credentials(self):
+        result = self.run_setup(success=False, MOCK_PULL_EXIT="7")
+        self.assertEqual(result.returncode, 7)
+        self.assertFalse((self.work / "xray_data").exists())
+
+    def test_setup_from_another_working_directory(self):
+        result = subprocess.run(
+            [sys.executable, str(self.work / "xray.py"), "setup"],
+            cwd=self.temp.name,
+            env=self.env,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.work / "xray_data/config/config.json").is_file())
 
     def test_restic_configuration(self):
         result = subprocess.run(

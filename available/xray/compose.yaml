@@ -1,4 +1,4 @@
-# Эти параметры читает setup.sh из результата docker compose config.
+# Эти параметры читает xray.py из результата docker compose config.
 x-xray-setup:
   container_name: ${CONTAINER_NAME:?Set CONTAINER_NAME in .env}
   domain: ${DOMAIN:?Set DOMAIN in .env}
