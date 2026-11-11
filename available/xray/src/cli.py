@@ -9,7 +9,6 @@ from .configuration import create_configuration, server_name
 from .migration import migrate_layout
 from .storage import check_new_configuration, locked_root, write_configuration
 
-
 SERVICES = (
     "app",
     "site",

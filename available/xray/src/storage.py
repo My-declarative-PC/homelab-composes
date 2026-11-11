@@ -1,11 +1,10 @@
 """Защищённая работа с реквизитами на Linux без перехода по символьным ссылкам."""
 
-from contextlib import contextmanager
 import fcntl
 import json
 import os
 import stat
-
+from contextlib import contextmanager
 
 FILES = ("config/config.json", "client/client.json", "client/import-link.txt")
 DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW

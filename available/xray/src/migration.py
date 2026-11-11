@@ -1,8 +1,8 @@
 """Явный перенос старой структуры без преобразования конфигураций."""
 
-from contextlib import ExitStack
 import os
 import stat
+from contextlib import ExitStack
 
 from .storage import directory, exists, locked_root
 

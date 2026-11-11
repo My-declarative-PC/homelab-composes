@@ -6,7 +6,6 @@ import secrets
 import uuid
 from urllib.parse import urlencode
 
-
 BACKEND_PORT = 8080
 
 

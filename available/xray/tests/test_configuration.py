@@ -1,12 +1,12 @@
 """Проверки генератора без Docker и сетевых запросов."""
 
 import json
-from pathlib import Path
 import re
 import sys
 import unittest
-from urllib.parse import parse_qs, urlsplit
 import uuid
+from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.configuration import BACKEND_PORT, create_configuration, server_name
@@ -83,7 +83,7 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_documented_migration_settings_match_generator(self):
         documentation = (Path(__file__).resolve().parents[1] / "README.md").read_text()
-        examples = re.findall(r"```json\n(.*?)\n\s*```", documentation, re.S)
+        examples = re.findall(r"```json\n(.*?)\n\s*```", documentation, re.DOTALL)
         server, client, _ = create_configuration("example.com")
         streams = [
             server["inbounds"][0]["streamSettings"],

@@ -1,11 +1,11 @@
 """Проверки миграции каталогов без Docker."""
 
 import os
-from pathlib import Path
 import stat
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -95,9 +95,11 @@ class MigrationTests(unittest.TestCase):
                 raise OSError("Смоделированный отказ")
             return rename(source, target, **kwargs)
 
-        with patch("src.migration.os.rename", side_effect=fail_second):
-            with self.assertRaisesRegex(RuntimeError, "Миграция прервана"):
-                migrate_layout(self.root, "xray_data")
+        with (
+            patch("src.migration.os.rename", side_effect=fail_second),
+            self.assertRaisesRegex(RuntimeError, "Миграция прервана"),
+        ):
+            migrate_layout(self.root, "xray_data")
         for relative, content in self.content.items():
             base = (
                 self.root / "xray_data" if relative.startswith("config/") else self.root

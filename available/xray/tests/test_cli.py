@@ -1,11 +1,11 @@
 """Проверки интерфейса и вызовов Docker без установленного Docker."""
 
-from contextlib import redirect_stderr, redirect_stdout
 import io
-from pathlib import Path
 import subprocess
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
 from unittest.mock import call, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -127,6 +127,7 @@ class ComposeTests(unittest.TestCase):
             cwd=root,
             capture_output=True,
             text=True,
+            check=False,
         )
 
     @patch("src.compose.shutil.which", return_value="/fake/docker")

@@ -2,15 +2,14 @@
 
 import json
 import os
-from pathlib import Path
 import shutil
 import stat
 import subprocess
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
-
 
 SOURCE = Path(__file__).resolve().parents[1]
 DOCKER = shutil.which("docker")
@@ -71,11 +70,11 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.write_env()
 
     def write_env(self, **overrides):
-        settings = dict(
-            CONTAINER_NAME="xray",
-            DOMAIN="example.com",
-            RESTIC_PASSWORD="test-only-password",
-        )
+        settings = {
+            "CONTAINER_NAME": "xray",
+            "DOMAIN": "example.com",
+            "RESTIC_PASSWORD": "test-only-password",
+        }
         settings.update(overrides)
         (self.work / ".env").write_text(
             "".join(f"{key}={value}\n" for key, value in settings.items())
@@ -88,6 +87,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             env={**self.env, **env},
             capture_output=True,
             text=True,
+            check=False,
         )
         if success:
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -138,7 +138,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
 
     def test_environment_overrides_dotenv_and_matches_compose(self):
         self.write_env(CONTAINER_NAME="from_file", DOMAIN="from-file.example")
-        env = dict(CONTAINER_NAME="override", DOMAIN="override.example")
+        env = {"CONTAINER_NAME": "override", "DOMAIN": "override.example"}
         self.run_setup(**env)
         client = self.read_json("override_data/client/client.json")
         self.assertEqual(client["outbounds"][0]["settings"]["vnext"][0]["port"], 443)
@@ -256,6 +256,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             env=self.env,
             capture_output=True,
             text=True,
+            check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue((self.work / "xray_data/config/config.json").is_file())
@@ -445,7 +446,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             self.assertEqual((data / relative).read_bytes(), content)
         self.assertEqual(stat.S_IMODE(data.stat().st_mode), 0o700)
         repeated = subprocess.run(
-            command, cwd=self.work, env=self.env, capture_output=True
+            command, cwd=self.work, env=self.env, capture_output=True, check=False
         )
         self.assertNotEqual(repeated.returncode, 0)
         for relative, content in original.items():

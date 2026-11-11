@@ -1,9 +1,9 @@
 """Проверки записи и блокировки без Docker и сети."""
 
-from pathlib import Path
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.storage import check_new_configuration, locked_root, write_configuration
@@ -18,10 +18,12 @@ class StorageTests(unittest.TestCase):
         self.root = Path(self.temp.name)
 
     def test_lock_excludes_concurrent_operation_and_can_be_reused(self):
-        with locked_root(self.root):
-            with self.assertRaisesRegex(RuntimeError, "уже выполняется"):
-                with locked_root(self.root):
-                    self.fail("Получена вторая блокировка")
+        with (
+            locked_root(self.root),
+            self.assertRaisesRegex(RuntimeError, "уже выполняется"),
+            locked_root(self.root),
+        ):
+            self.fail("Получена вторая блокировка")
         with locked_root(self.root):
             pass
 
@@ -39,9 +41,8 @@ class StorageTests(unittest.TestCase):
                 link = root / relative
                 link.parent.mkdir(parents=True, exist_ok=True)
                 link.symlink_to(outside, target_is_directory=True)
-                with locked_root(root) as parent:
-                    with self.assertRaises(OSError):
-                        check_new_configuration(parent, "xray_data")
+                with locked_root(root) as parent, self.assertRaises(OSError):
+                    check_new_configuration(parent, "xray_data")
                 self.assertEqual(list(outside.iterdir()), [])
 
     def test_exclusive_write_preserves_partial_configuration(self):
@@ -58,6 +59,5 @@ class StorageTests(unittest.TestCase):
 
     def test_symlink_lock_is_rejected(self):
         (self.root / ".xray.lock").symlink_to("missing")
-        with self.assertRaises(OSError):
-            with locked_root(self.root):
-                self.fail("Принята символьная ссылка")
+        with self.assertRaises(OSError), locked_root(self.root):
+            self.fail("Принята символьная ссылка")
