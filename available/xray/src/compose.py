@@ -20,11 +20,11 @@ class Compose:
         if self.docker is None:
             raise DockerError("Необходима команда: docker")
 
-    def docker_run(self, *args, stream=False):
+    def run(self, *args):
         result = subprocess.run(
-            [self.docker, *args],
+            [self.docker, "compose", *args],
             cwd=self.root,
-            capture_output=not stream,
+            capture_output=True,
             text=True,
             check=False,
         )
@@ -35,9 +35,6 @@ class Compose:
                 result.returncode,
             )
         return result.stdout
-
-    def run(self, *args, stream=False):
-        return self.docker_run("compose", *args, stream=stream)
 
     def config(self):
         try:

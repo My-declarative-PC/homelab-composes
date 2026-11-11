@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Единая точка входа для управления Xray."""
+"""Точка входа для настройки и проверки Xray."""
 
 from pathlib import Path
 

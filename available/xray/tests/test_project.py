@@ -26,10 +26,6 @@ class ProjectTests(unittest.TestCase):
                 None,
                 "setup",
                 "check",
-                "up",
-                "down",
-                "status",
-                "logs",
                 "migrate-layout",
             ):
                 with self.subTest(command=command):
@@ -53,7 +49,7 @@ class ProjectTests(unittest.TestCase):
             prefix="xray-cli-", dir="/tmp/opencode"
         ) as work:
             result = subprocess.run(
-                [sys.executable, "-B", str(ROOT / "xray.py"), "status"],
+                [sys.executable, "-B", str(ROOT / "xray.py"), "check"],
                 cwd=work,
                 env={"PATH": "", "PYTHONUTF8": "1"},
                 capture_output=True,

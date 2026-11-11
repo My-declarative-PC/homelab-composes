@@ -32,19 +32,22 @@ class CliTests(unittest.TestCase):
         with redirect_stdout(self.out), redirect_stderr(self.err):
             return main(self.root, list(args))
 
-    def test_lifecycle_commands(self):
-        for args, expected in (
-            (("up",), call("up", "-d")),
-            (("up", "app", "site"), call("up", "-d", "app", "site")),
-            (("down",), call("down")),
-            (("status",), call("ps")),
+    def test_hctl_commands_are_rejected_before_docker(self):
+        for command in (
+            "up",
+            "down",
+            "status",
+            "logs",
+            "pull",
+            "restart",
+            "ps",
+            "stop",
+            "start",
         ):
-            with self.subTest(args=args):
-                self.compose.reset_mock()
-                self.assertEqual(self.run_cli(*args), 0)
-                self.compose_class.assert_called_with(self.root)
-                self.assertEqual(self.compose.run.call_args_list, [expected])
-                self.compose.config.assert_not_called()
+            with self.subTest(command=command), self.assertRaises(SystemExit) as raised:
+                self.run_cli(command)
+            self.assertEqual(raised.exception.code, 2)
+        self.compose_class.assert_not_called()
 
     def test_check_validates_both_backends_without_generation(self):
         self.assertEqual(self.run_cli("check"), 0)
@@ -54,6 +57,8 @@ class CliTests(unittest.TestCase):
             [
                 call(
                     "run",
+                    "--pull",
+                    "never",
                     "--rm",
                     "--no-deps",
                     "app",
@@ -62,10 +67,9 @@ class CliTests(unittest.TestCase):
                     "-c",
                     "/etc/xray/config.json",
                 ),
-                call("run", "--rm", "--no-deps", "site", "-t"),
+                call("run", "--pull", "never", "--rm", "--no-deps", "site", "-t"),
             ],
         )
-        self.compose.docker_run.assert_not_called()
         self.assertIn("пройдены", self.out.getvalue())
 
     def test_check_failure_stops_sequence(self):
@@ -80,23 +84,12 @@ class CliTests(unittest.TestCase):
         self.assertEqual(self.run_cli("migrate-layout"), 0)
         migrate.assert_called_once_with(self.root, "custom_data")
         self.compose.run.assert_not_called()
-        self.compose.docker_run.assert_not_called()
-
-    def test_logs_stream_only_on_explicit_request(self):
-        self.assertEqual(self.run_cli("logs", "--tail", "12", "--follow", "app"), 0)
-        self.compose.run.assert_called_once_with(
-            "logs", "--tail", "12", "--follow", "app", stream=True
-        )
-
-    def test_logs_default_tail(self):
-        self.assertEqual(self.run_cli("logs"), 0)
-        self.compose.run.assert_called_once_with("logs", "--tail", "50", stream=True)
 
     def test_invalid_arguments_never_call_docker(self):
         for args in (
-            ("down", "--volumes"),
-            ("up", "unknown"),
-            ("logs", "--tail", "-1"),
+            ("setup", "--pull"),
+            ("check", "app"),
+            ("setup", "--force"),
         ):
             with self.subTest(args=args), self.assertRaises(SystemExit) as raised:
                 self.run_cli(*args)

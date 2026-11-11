@@ -41,9 +41,7 @@ if args[:2] == ['compose', 'config']:
     os.execv(os.environ['REAL_DOCKER'], [os.environ['REAL_DOCKER'], *args])
 with open(os.environ['DOCKER_CALLS'], 'a') as file:
     file.write(json.dumps(args) + '\\n')
-if args[:1] == ['pull']:
-    sys.exit(int(os.environ.get('MOCK_PULL_EXIT', '0')))
-if args == ['compose', 'run', '--rm', '--no-deps', 'app', 'run', '-test', '-c', '/etc/xray/config.json']:
+if args == ['compose', 'run', '--pull', 'never', '--rm', '--no-deps', 'app', 'run', '-test', '-c', '/etc/xray/config.json']:
     sys.exit(int(os.environ.get('MOCK_TEST_EXIT', '0')))
 sys.exit('Неожиданная команда Docker: ' + repr(args))
 """)
@@ -133,8 +131,24 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         ):
             self.assertEqual(stat.S_IMODE((self.work / path).stat().st_mode), mode)
         calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
-        self.assertEqual(calls[-1][4], "app")
-        self.assertEqual(len(calls), 2)  # Только pull и проверка; без x25519.
+        self.assertEqual(
+            calls,
+            [
+                [
+                    "compose",
+                    "run",
+                    "--pull",
+                    "never",
+                    "--rm",
+                    "--no-deps",
+                    "app",
+                    "run",
+                    "-test",
+                    "-c",
+                    "/etc/xray/config.json",
+                ]
+            ],
+        )  # Только проверка, без скачивания образов и управления стеком.
 
     def test_environment_overrides_dotenv_and_matches_compose(self):
         self.write_env(CONTAINER_NAME="from_file", DOMAIN="from-file.example")
@@ -223,7 +237,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.assertTrue(path.is_symlink())
         self.assertFalse(self.calls.exists())
 
-    def test_invalid_settings_fail_before_pull(self):
+    def test_invalid_settings_fail_before_container_check(self):
         for key, value in (
             ("CONTAINER_NAME", "../escape"),
             ("CONTAINER_NAME", "with.dot"),
@@ -244,10 +258,12 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.assertNotIn("Проверка конфигурации пройдена", result.stdout)
         self.assertTrue((self.work / "xray_data/client/import-link.txt").is_file())
 
-    def test_failed_pull_does_not_create_credentials(self):
-        result = self.run_setup(success=False, MOCK_PULL_EXIT="7")
+    def test_failed_container_check_preserves_credentials_and_exit_code(self):
+        result = self.run_setup(success=False, MOCK_TEST_EXIT="7")
         self.assertEqual(result.returncode, 7)
-        self.assertFalse((self.work / "xray_data").exists())
+        self.assertTrue((self.work / "xray_data/config/config.json").is_file())
+        self.assertTrue((self.work / "xray_data/client/client.json").is_file())
+        self.assertTrue((self.work / "xray_data/client/import-link.txt").is_file())
 
     def test_setup_from_another_working_directory(self):
         result = subprocess.run(
