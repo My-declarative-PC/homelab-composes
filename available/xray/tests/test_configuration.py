@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlsplit
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from configuration import BACKEND_PORT, create_configuration, server_name
+from src.configuration import BACKEND_PORT, create_configuration, server_name
 
 
 class ConfigurationTests(unittest.TestCase):

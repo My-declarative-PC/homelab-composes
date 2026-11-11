@@ -27,9 +27,9 @@ class SetupTests(unittest.TestCase):
         root = Path(self.temp.name)
         self.work = root / "available/xray"
         self.work.mkdir(parents=True)
-        for name in ("setup.sh", "compose.yaml", "configuration.py"):
+        for name in ("setup.sh", "compose.yaml"):
             shutil.copy2(SOURCE / name, self.work / name)
-        for name in ("nginx", "site"):
+        for name in ("src", "nginx", "site"):
             shutil.copytree(SOURCE / name, self.work / name)
         shutil.copytree(SOURCE.parent / "restic", root / "available/restic")
         self.bin = root / "bin"

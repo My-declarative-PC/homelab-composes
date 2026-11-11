@@ -15,7 +15,7 @@ SETTINGS="$(
 	python3 - <<'PY'
 import json, os, re
 from pathlib import Path
-from configuration import server_name
+from src.configuration import server_name
 
 config = json.loads(os.environ['XRAY_COMPOSE_CONFIG'])
 settings = config['x-xray-setup']
@@ -41,7 +41,7 @@ docker pull "$IMAGE"
 python3 - <<'PY'
 import json, os
 from pathlib import Path
-from configuration import create_configuration, server_name
+from src.configuration import create_configuration, server_name
 
 settings=json.loads(os.environ['SETTINGS'])
 server, client, uri=create_configuration(settings['domain'])
