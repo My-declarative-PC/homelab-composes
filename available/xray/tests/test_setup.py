@@ -9,7 +9,6 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from urllib.parse import parse_qs, urlsplit
 
 SOURCE = Path(__file__).resolve().parents[1]
 DOCKER = shutil.which("docker")
@@ -99,35 +98,20 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
     def test_generation_and_permissions(self):
         self.run_setup()
         server = self.read_json("xray_data/config/config.json")
-        client = self.read_json("xray_data/client/client.json")
         inbound = server["inbounds"][0]
-        outbound = client["outbounds"][0]
-        user = outbound["settings"]["vnext"][0]["users"][0]
-        self.assertEqual(inbound["settings"]["clients"][0]["id"], user["id"])
+        self.assertEqual(inbound["settings"]["clients"], [])
+        self.assertEqual(
+            self.read_json("xray_data/users.json"),
+            {"version": 1, "domain": "example.com", "users": []},
+        )
+        self.assertFalse((self.work / "xray_data/client").exists())
         self.assertEqual(inbound["port"], 8080)
         self.assertEqual(inbound["streamSettings"]["security"], "none")
-        self.assertEqual(outbound["streamSettings"]["security"], "tls")
-        self.assertEqual(
-            inbound["streamSettings"]["xhttpSettings"]["path"],
-            outbound["streamSettings"]["xhttpSettings"]["path"],
-        )
-        uri = urlsplit(
-            (self.work / "xray_data/client/import-link.txt").read_text().strip()
-        )
-        self.assertEqual(uri.username, user["id"])
-        self.assertEqual(uri.port, 443)
-        self.assertEqual(uri.hostname, "xray.example.com")
-        self.assertEqual(
-            parse_qs(uri.query)["path"],
-            [inbound["streamSettings"]["xhttpSettings"]["path"]],
-        )
         for path, mode in (
             ("xray_data", 0o700),
             ("xray_data/config", 0o755),
             ("xray_data/config/config.json", 0o644),
-            ("xray_data/client", 0o700),
-            ("xray_data/client/client.json", 0o600),
-            ("xray_data/client/import-link.txt", 0o600),
+            ("xray_data/users.json", 0o600),
         ):
             self.assertEqual(stat.S_IMODE((self.work / path).stat().st_mode), mode)
         calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
@@ -154,17 +138,9 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
         self.write_env(CONTAINER_NAME="from_file", DOMAIN="from-file.example")
         env = {"CONTAINER_NAME": "override", "DOMAIN": "override.example"}
         self.run_setup(**env)
-        client = self.read_json("override_data/client/client.json")
-        self.assertEqual(client["outbounds"][0]["settings"]["vnext"][0]["port"], 443)
         self.assertEqual(
-            client["outbounds"][0]["streamSettings"]["tlsSettings"]["serverName"],
-            "xray.override.example",
+            self.read_json("override_data/users.json")["domain"], "override.example"
         )
-        uri = urlsplit(
-            (self.work / "override_data/client/import-link.txt").read_text().strip()
-        )
-        self.assertEqual(uri.port, 443)
-        self.assertEqual(uri.hostname, "xray.override.example")
         config = subprocess.run(
             [DOCKER, "compose", "config", "--format", "json"],
             cwd=self.work,
@@ -218,6 +194,7 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
             "xray_data/config/config.json",
             "xray_data/client/client.json",
             "xray_data/client/import-link.txt",
+            "xray_data/users.json",
         ):
             with self.subTest(path=relative):
                 path = self.work / relative
@@ -255,14 +232,13 @@ sys.exit('Неожиданная команда Docker: ' + repr(args))
     def test_failed_config_test_does_not_report_success(self):
         result = self.run_setup(success=False, MOCK_TEST_EXIT="1")
         self.assertNotIn("Проверка конфигурации пройдена", result.stdout)
-        self.assertTrue((self.work / "xray_data/client/import-link.txt").is_file())
+        self.assertTrue((self.work / "xray_data/users.json").is_file())
 
     def test_failed_container_check_preserves_credentials_and_exit_code(self):
         result = self.run_setup(success=False, MOCK_TEST_EXIT="7")
         self.assertEqual(result.returncode, 7)
         self.assertTrue((self.work / "xray_data/config/config.json").is_file())
-        self.assertTrue((self.work / "xray_data/client/client.json").is_file())
-        self.assertTrue((self.work / "xray_data/client/import-link.txt").is_file())
+        self.assertTrue((self.work / "xray_data/users.json").is_file())
 
     def test_setup_from_another_working_directory(self):
         result = subprocess.run(

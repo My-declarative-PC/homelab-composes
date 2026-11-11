@@ -7,7 +7,13 @@ import secrets
 import stat
 from contextlib import contextmanager
 
-FILES = ("config/config.json", "client/client.json", "client/import-link.txt")
+FILES = (
+    "config/config.json",
+    "client/client.json",
+    "client/import-link.txt",
+    "users.json",
+    ".users-transaction.json",
+)
 DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
 
 
@@ -106,6 +112,12 @@ def check_new_configuration(parent, data_name):
         return
     with directory(parent, data_name) as data:
         for relative in FILES:
+            if "/" not in relative:
+                if exists(data, relative):
+                    raise RuntimeError(
+                        "Конфигурация уже существует. Реквизиты не изменены"
+                    )
+                continue
             folder, name = relative.split("/")
             if exists(data, folder):
                 with directory(data, folder) as target:
@@ -113,6 +125,16 @@ def check_new_configuration(parent, data_name):
                         raise RuntimeError(
                             "Конфигурация уже существует. Реквизиты не изменены"
                         )
+
+
+def write_server_configuration(parent, data_name, server, domain):
+    """Первичная настройка без клиентских реквизитов и перезаписи файлов."""
+    with directory(parent, data_name, create=True) as data:
+        os.fchmod(data, 0o700)
+        with directory(data, "config", create=True, mode=0o755) as config:
+            os.fchmod(config, 0o755)
+            write_json(config, "config.json", server, mode=0o644)
+        write_json(data, "users.json", {"version": 1, "domain": domain, "users": []})
 
 
 def write_configuration(parent, data_name, server, client, uri):
