@@ -6,6 +6,7 @@ import sys
 
 from .compose import Compose, DockerError
 from .configuration import create_configuration, server_name
+from .migration import migrate_layout
 from .storage import check_new_configuration, locked_root, write_configuration
 
 
@@ -79,6 +80,10 @@ def main(root, argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("setup", help="Создать и проверить новую конфигурацию")
     commands.add_parser("check", help="Проверить Compose, Xray и Nginx без генерации")
+    commands.add_parser(
+        "migrate-layout",
+        help="Перенести старые config/ и client/ без преобразования JSON",
+    )
     up = commands.add_parser("up", help="Запустить стек или выбранные сервисы")
     up.add_argument("services", nargs="*", metavar="СЕРВИС")
     commands.add_parser("down", help="Остановить стек без удаления томов и данных")
@@ -104,6 +109,12 @@ def main(root, argv=None):
             setup(root, compose)
         elif args.command == "check":
             check(compose)
+        elif args.command == "migrate-layout":
+            name, _, _ = settings_from_config(compose.config())
+            migrate_layout(root, name + "_data")
+            print(
+                "Каталоги перенесены; содержимое файлов не изменено. Адаптируйте REALITY вручную по README"
+            )
         elif args.command == "up":
             compose.run("up", "-d", *args.services)
             print("Команда запуска выполнена. Состояние: python3 xray.py status")

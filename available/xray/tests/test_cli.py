@@ -74,6 +74,14 @@ class CliTests(unittest.TestCase):
         self.assertEqual(self.compose.run.call_count, 1)
         self.assertNotIn("пройдены", self.out.getvalue())
 
+    @patch("src.cli.migrate_layout")
+    def test_migration_uses_compose_settings_without_starting_containers(self, migrate):
+        self.compose.config.return_value["x-xray-setup"]["container_name"] = "custom"
+        self.assertEqual(self.run_cli("migrate-layout"), 0)
+        migrate.assert_called_once_with(self.root, "custom_data")
+        self.compose.run.assert_not_called()
+        self.compose.docker_run.assert_not_called()
+
     def test_logs_stream_only_on_explicit_request(self):
         self.assertEqual(self.run_cli("logs", "--tail", "12", "--follow", "app"), 0)
         self.compose.run.assert_called_once_with(
